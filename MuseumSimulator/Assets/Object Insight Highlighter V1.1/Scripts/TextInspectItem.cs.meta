@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e8d0e807d8fd0c14f83265065942fd92
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/Scripts/TextInspectItem.cs
+  uploadId: 669794

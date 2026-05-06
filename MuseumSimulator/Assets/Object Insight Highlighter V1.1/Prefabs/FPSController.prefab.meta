@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 120dabd81e4787b438b0e72d531b6466
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/Prefabs/FPSController.prefab
+  uploadId: 669794

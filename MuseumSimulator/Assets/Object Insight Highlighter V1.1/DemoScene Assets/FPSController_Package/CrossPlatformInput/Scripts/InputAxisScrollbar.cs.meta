@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7d3269566d48b8447bb48d2259e28f8b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/DemoScene Assets/FPSController_Package/CrossPlatformInput/Scripts/InputAxisScrollbar.cs
+  uploadId: 669794

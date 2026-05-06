@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1caf40fc8bebb6b43b2550c05ca791d6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/DemoScene Assets/FPSController_Package/CrossPlatformInput/Scripts/TouchPad.cs
+  uploadId: 669794

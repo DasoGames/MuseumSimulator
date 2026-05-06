@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6ac1ce5a5adfd9f46adbf5b6f752a47c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/DemoScene Assets/FPSController_Package/CrossPlatformInput/Scripts/CrossPlatformInputManager.cs
+  uploadId: 669794

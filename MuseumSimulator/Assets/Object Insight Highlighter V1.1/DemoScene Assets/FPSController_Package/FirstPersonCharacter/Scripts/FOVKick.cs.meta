@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 6045a93fb05b9c74884821030da2c46c
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/DemoScene Assets/FPSController_Package/FirstPersonCharacter/Scripts/FOVKick.cs
+  uploadId: 669794

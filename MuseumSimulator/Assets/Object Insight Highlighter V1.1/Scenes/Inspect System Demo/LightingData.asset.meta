@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c431ff687979ae34ba7515f85ba94167
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 112000000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/Scenes/Inspect System Demo/LightingData.asset
+  uploadId: 669794

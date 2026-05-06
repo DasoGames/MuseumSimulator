@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 5a9383dda6cabc047b7a297602e93eb4
+AudioImporter:
+  serializedVersion: 5
+  format: -1
+  loadType: 1
+  quality: -1
+  sampleRate: 0
+  forceToMono: 0
+  preloadAudioData: 1
+  loadInBackground: 0
+  overrideSampleRate: 0
+  optimizeSampleRate: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/DemoScene Assets/FPSController_Package/FirstPersonCharacter/Audio/Footstep03.wav
+  uploadId: 669794

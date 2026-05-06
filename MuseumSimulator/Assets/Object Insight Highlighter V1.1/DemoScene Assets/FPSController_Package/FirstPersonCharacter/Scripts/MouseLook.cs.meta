@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 37e60a97f2c87ae41b6cdc1055d78cb9
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 252109
+  packageName: Object Insights Highlighter
+  packageVersion: 1.1
+  assetPath: Assets/Object Insight Highlighter V1.1/DemoScene Assets/FPSController_Package/FirstPersonCharacter/Scripts/MouseLook.cs
+  uploadId: 669794
