@@ -4,8 +4,7 @@ public class PlayerInteractor : MonoBehaviour
 {
     [Header("Interaction Settings")]
     public float interactRange = 3f;
-    
-    // 검사할 레이어를 인스펙터에서 선택할 수 있게 합니다.
+
     [SerializeField] private LayerMask interactableLayer;
 
     void Update()
