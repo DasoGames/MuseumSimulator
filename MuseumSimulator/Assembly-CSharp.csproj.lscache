@@ -159,6 +159,7 @@ Assets/
    Truck/Truck.cs
    Utensil/Microwave.cs
  _YK/_Scripts/
+  Manager/MoneyManager.cs
   PlayerInteract/PlayerInteractor.cs
   Truck/TruckController.cs
 Temp/obj/Assembly-CSharp/.NETStandard,Version=v2.1.AssemblyAttributes.cs

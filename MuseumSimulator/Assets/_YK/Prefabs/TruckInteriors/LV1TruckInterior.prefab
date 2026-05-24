@@ -7011,6 +7011,7 @@ GameObject:
   - component: {fileID: 9161438825547654204}
   - component: {fileID: 3771609494747544630}
   - component: {fileID: 8870221752789060071}
+  - component: {fileID: 5161417340347367226}
   m_Layer: 0
   m_Name: Pot
   m_TagString: Untagged
@@ -7111,6 +7112,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.009998829, y: 0.0037517399, z: 0.0077559855}
   m_Center: {x: 0.00000028987438, y: -0.00000022997847, z: 0.00000012048996}
+--- !u!114 &5161417340347367226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5737979448244362932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aadbdbd418c3fef4eb1a7627a51f9986, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CookingPot
 --- !u!1 &5797189350014181170
 GameObject:
   m_ObjectHideFlags: 0
@@ -12114,6 +12127,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6169d2b7b5b3fa74db48dd1e5b762bbb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4202824569402279609}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6169d2b7b5b3fa74db48dd1e5b762bbb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6795964258797186188}
   m_SourcePrefab: {fileID: 100100000, guid: 6169d2b7b5b3fa74db48dd1e5b762bbb, type: 3}
 --- !u!1 &6924887603966874472 stripped
 GameObject:
@@ -12141,6 +12157,36 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.008337502, y: 0.009999582, z: 0.008939953}
   m_Center: {x: 0.0000001294539, y: 0.00000019953589, z: -0.00000006938356}
+--- !u!114 &6795964258797186188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6924887603966874472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 427732b831b25d440aec492138fe3d12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChoppingBoard
+  machineID: ChoppingBoard
+  baseChopTime: 3
+  choppedVegetableData:
+    objectName: 
+    objectState: 
+    icon: {fileID: 0}
+    prefab: {fileID: 0}
+  choppedChickenData:
+    objectName: 
+    objectState: 
+    icon: {fileID: 0}
+    prefab: {fileID: 0}
+  choppedPotatoData:
+    objectName: 
+    objectState: 
+    icon: {fileID: 0}
+    prefab: {fileID: 0}
+  ingredientPlaceTransform: {fileID: 0}
 --- !u!4 &7733230567621380562 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6169d2b7b5b3fa74db48dd1e5b762bbb, type: 3}
