@@ -3,9 +3,9 @@ using UnityEngine.UI;
 
 public class FridgeItemSlot : MonoBehaviour
 {
-    // ⭐ [수정] 이제 냉장고 슬롯은 HoldableObject 데이터를 보관합니다.
-    private HoldableObject myIngredientData; 
+    private FoodData myFoodData = null; // 💡 이 슬롯 버튼이 품고 있는 고유 FoodData 에셋
     private Button slotButton;
+    private Image iconImage;
 
     void Awake()
     {
@@ -14,30 +14,48 @@ public class FridgeItemSlot : MonoBehaviour
         {
             slotButton.onClick.AddListener(OnSlotClicked);
         }
+
+        // 프리팹 내부의 자식 오브젝트 중 "Icon"이라는 이름을 가진 이미지 컴포넌트 자동 캐싱
+        Transform iconTransform = transform.Find("Icon");
+        if (iconTransform != null)
+        {
+            iconImage = iconTransform.GetComponent<Image>();
+        }
     }
 
-    // ⭐ [수정] UI에서 데이터를 안전하게 넘겨받을 수 있도록 매개변수 타입 일치화!
-    public void SetupSlot(HoldableObject data)
+    /// <summary>
+    /// 💡 FridgeUI가 인스턴스 생성(Instantiate) 직후 호출하여 데이터를 바인딩해주는 함수
+    /// </summary>
+    public void SetupSlot(FoodData data)
     {
-        myIngredientData = data;
+        myFoodData = data;
+
+        // 💡 프리팹의 디폴트 값을 무시하고, 전달받은 에셋의 고유 아이콘으로 즉시 갈아끼웁니다!
+        if (iconImage != null && myFoodData != null && myFoodData.icon != null)
+        {
+            iconImage.sprite = myFoodData.icon;
+            iconImage.enabled = true;
+        }
     }
 
     private void OnSlotClicked()
     {
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
-        if (player == null || player.IsHoldingItem)
+        
+        // 유효성 체크: 플레이어가 없거나, 손에 이미 무언가를 들고 있다면 꺼낼 수 없음
+        if (player == null || player.IsHoldingItem || myFoodData == null)
         {
-            Debug.LogWarning("플레이어가 없거나 이미 손에 무언가를 들고 있습니다.");
+            Debug.LogWarning("냉장고슬롯: 손에 이미 물건을 들고 있거나 데이터가 올바르지 않습니다.");
             return;
         }
 
-        // 플레이어 손에 구조체 데이터를 던져서 3D 물체 스폰 시키기
-        player.HoldNewData(myIngredientData);
+        // 1. ⭐ [버그 해결 핵심] 원본 프리팹 값이 아니라, 내 슬롯이 기억하는 정직한 고유 데이터를 플레이어 손에 전달!
+        player.HoldNewData(myFoodData);
 
-        // 냉장고 매니저 데이터에서 삭제 요청
+        // 2. 냉장고 매니저의 데이터 리스트에서 제거 요청 (동시에 UI가 자동으로 새로고침됩니다)
         if (FridgeManager.Instance != null)
         {
-            FridgeManager.Instance.RemoveIngredient(myIngredientData);
+            FridgeManager.Instance.RemoveIngredient(myFoodData);
         }
     }
 }

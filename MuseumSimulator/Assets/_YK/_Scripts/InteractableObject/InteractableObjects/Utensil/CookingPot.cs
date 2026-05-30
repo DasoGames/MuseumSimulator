@@ -7,19 +7,19 @@ public class CookingPot : MonoBehaviour, IInteractable
     [Tooltip("UpgradeManager에 등록한 고유 식별 이름")]
     public string machineID = "CookingPot";
 
-    // 💡 재료별 시간 다 지우고, 이 냄비 고유의 기본 시간들만 남겼습니다!
     public float baseCookTime = 10f;     // 떡볶이 조리에 걸리는 기본 시간 (초)
     public float baseBurnTime = 8f;      // 완성 후 타버리기까지의 기본 방치 시간 (초)
 
     [Header("결과물 데이터")]
-    public HoldableObject cookedTteokbokkiData; // 이름: "완성된떡볶이"
-    public HoldableObject burntTteokbokkiData;  // 이름: "탄떡볶이"
+    // 💡 기존 HoldableObject 구조체 대신 스크립터블 오브젝트인 FoodData를 연결합니다!
+    public FoodData cookedTteokbokkiData; // 인스펙터 에셋 이름: "완성된떡볶이"
+    public FoodData burntTteokbokkiData;  // 인스펙터 에셋 이름: "탄떡볶이"
 
     [Header("냄비 내부 재료 배치 위치 (선택사항)")]
     public Transform foodVisualParent; 
 
-    // 떡볶이에 필요한 3가지 고정 재료 이름 목록
-    private readonly List<string> requiredIngredients = new List<string> { "떡볶이떡", "양념", "손질된야채" };
+    // 떡볶이에 필요한 3가지 고정 재료 이름 목록 (FoodData의 foodName 기준)
+    private readonly List<string> requiredIngredients = new List<string> { "Ricecake", "Gochujang", "SlicedVegetables" };
     
     [Header("현재 냄비에 들어간 재료 목록 (Debug)")]
     [SerializeField] private List<string> currentIngredients = new List<string>();
@@ -37,7 +37,7 @@ public class CookingPot : MonoBehaviour, IInteractable
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
         if (player == null) return;
 
-        // [상황 1] 요리가 완성되었거나 타버린 상태 -> 플레이어가 빈손일 때 수거해감
+        // 💡 [상황 1] 요리가 완성되었거나 타버린 상태 -> 플레이어가 빈손일 때 수거해감
         if (isDone)
         {
             if (player.IsHoldingItem)
@@ -46,14 +46,15 @@ public class CookingPot : MonoBehaviour, IInteractable
                 return;
             }
 
+            // 탄 타이머 체크 후 알맞은 FoodData 에셋을 손에 지급
             if (timer >= baseBurnTime)
             {
-                player.HoldNewData(burntTteokbokkiData);
+                if (burntTteokbokkiData != null) player.HoldNewData(burntTteokbokkiData);
                 Debug.Log("냄비: 너무 오래 방치되어 새까맣게 탄 떡볶이를 꺼냈습니다.");
             }
             else
             {
-                player.HoldNewData(cookedTteokbokkiData);
+                if (cookedTteokbokkiData != null) player.HoldNewData(cookedTteokbokkiData);
                 Debug.Log("냄비: 맛있게 조리된 완성된 떡볶이를 꺼냈습니다!");
             }
 
@@ -61,7 +62,7 @@ public class CookingPot : MonoBehaviour, IInteractable
             return;
         }
 
-        // [상황 2] 3가지 재료가 다 모여서 조리가능상태일 때 -> 빈손으로 누르면 조리 시작!
+        // 💡 [상황 2] 3가지 재료가 다 모여서 조리가능상태일 때 -> 빈손으로 누르면 조리 시작!
         if (isReadyToCook && !isCooking)
         {
             if (player.IsHoldingItem)
@@ -74,7 +75,7 @@ public class CookingPot : MonoBehaviour, IInteractable
             return;
         }
 
-        // [상황 3] 아직 재료를 모으는 중일 때 -> 손에 든 재료를 냄비에 투입
+        // 💡 [상황 3] 아직 재료를 모으는 중일 때 -> 손에 든 재료를 냄비에 투입
         if (!isReadyToCook && !isCooking && !isDone)
         {
             if (!player.IsHoldingItem)
@@ -83,14 +84,16 @@ public class CookingPot : MonoBehaviour, IInteractable
                 return;
             }
 
-            HoldableObject heldData = player.CurrentHeldData.Value;
+            // 💡 구조체 지우고 순수 FoodData 참조로 가져옵니다.
+            FoodData heldData = player.CurrentHeldData;
 
-            // 레시피에 포함되어 있고, 중복 투입이 아니라면 허용
-            if (requiredIngredients.Contains(heldData.objectName) && !currentIngredients.Contains(heldData.objectName))
+            // 💡 데이터 규칙에 맞게 'foodName' 필드로 레시피 포함 및 중복 여부를 체크합니다.
+            if (requiredIngredients.Contains(heldData.foodName) && !currentIngredients.Contains(heldData.foodName))
             {
-                currentIngredients.Add(heldData.objectName);
-                Debug.Log($"냄비: '{heldData.objectName}' 투입 완료! ({currentIngredients.Count} / {requiredIngredients.Count})");
+                currentIngredients.Add(heldData.foodName);
+                Debug.Log($"냄비: '{heldData.foodName}' 투입 완료! ({currentIngredients.Count} / {requiredIngredients.Count})");
                 
+                // 플레이어 손 비우기
                 player.ClearHand();
 
                 // 재료 3가지가 전부 모였다면 조리가능상태로 전환
@@ -114,8 +117,7 @@ public class CookingPot : MonoBehaviour, IInteractable
         isCooking = true;
         timer = 0f;
 
-        // 💡 [독립적 업그레이드 연동] 
-        // 재료별 시간을 더하는 복잡한 수식 없이, 통째로 baseCookTime에 단축 비율만 곱해줍니다!
+        // [독립적 업그레이드 연동] 
         float speedModifier = 1f;
         if (UpgradeManager.Instance != null)
         {

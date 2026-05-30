@@ -19,39 +19,29 @@ public class FridgeUI : MonoBehaviour
     {
         if (FridgeManager.Instance == null) return;
 
-        // 기존 슬롯 싹 삭제
+        // 기존 슬롯 싹 청소
         foreach (Transform child in gridParent)
         {
             Destroy(child.gameObject);
         }
 
-        // ⭐ [에러 해결] 이제 냉장고에서 HoldableObject 구조체를 가져옵니다.
-        IReadOnlyList<HoldableObject> ingredients = FridgeManager.Instance.StoredIngredients;
+        // ⭐ [에러 해결] 냉장고에서 이제 복사본 구조체가 아닌 순수 FoodData 에셋 리스트를 가져옵니다.
+        IReadOnlyList<FoodData> ingredients = FridgeManager.Instance.StoredIngredients;
         
         for (int i = 0; i < ingredients.Count; i++)
         {
             GameObject newSlot = Instantiate(slotPrefab, gridParent);
             
-            // 슬롯 컴포넌트에 구조체 전달 (매개변수 불일치 에러 해결)
+            // 슬롯 컴포넌트에 안전하게 고유 FoodData 에셋 전달
             FridgeItemSlot itemSlotScript = newSlot.GetComponent<FridgeItemSlot>();
             if (itemSlotScript != null)
             {
-                itemSlotScript.SetupSlot(ingredients[i]);
-            }
-
-            // 아이콘 이미지 띄우기 (HoldableObject에 새로 추가한 icon 필드 사용)
-            Transform iconTransform = newSlot.transform.Find("Icon");
-            if (iconTransform != null)
-            {
-                Image slotImage = iconTransform.GetComponent<Image>();
-                if (slotImage != null && ingredients[i].icon != null)
-                {
-                    slotImage.sprite = ingredients[i].icon;
-                    slotImage.enabled = true;
-                }
+                // ⭐ 이 한 줄이 실행되며 슬롯이 자기 전용 데이터와 아이콘을 스스로 그리고 세팅합니다.
+                itemSlotScript.SetupSlot(ingredients[i]); 
             }
         }
 
+        // 냉장고 용량 텍스트 출력 수정
         if (capacityText != null)
         {
             capacityText.text = $"{FridgeManager.Instance.CurrentCount} / {FridgeManager.Instance.maxCapacity}";

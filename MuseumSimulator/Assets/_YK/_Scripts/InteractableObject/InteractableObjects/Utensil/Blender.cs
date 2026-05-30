@@ -8,11 +8,11 @@ public class Blender : MonoBehaviour, IInteractable
     public float baseHoldTime = 5f;     // 다 갈린 후 컵에 담기 위해 꾹 눌러야 하는 시간 (초)
 
     [Header("결과물 데이터")]
-    // 💡 과일 종류가 하나이므로, 결과물 주스 구조체 데이터도 딱 하나만 연결하면 됩니다!
-    public HoldableObject cookedJuiceData; // 이름: "과일주스"
+    // 💡 기존 HoldableObject 구조체 대신 스크립터블 오브젝트인 FoodData를 연결합니다!
+    public FoodData cookedJuiceData;    // 인스펙터에 "과일주스" 에셋을 연결하세요.
 
     [Header("블렌더 내부 3D 배치 위치")]
-    public Transform fruitPlaceTransform; // 블렌더 안에 과일이나 주스 비주얼을 띄울 위치
+    public Transform fruitPlaceTransform; // 블렌더 안에 과일 비주얼을 띄울 위치
 
     // 블렌더 상태 제어 변수들
     private bool hasFruit = false;       // 현재 블렌더에 과일이 들어갔는가?
@@ -34,10 +34,11 @@ public class Blender : MonoBehaviour, IInteractable
         // [단계 1] 블렌더가 비어있고, 플레이어가 과일을 들고 있을 때 -> 과일 투입 및 즉시 가동
         if (!hasFruit && !isBlending && !isDoneBlending && player.IsHoldingItem)
         {
-            HoldableObject heldData = player.CurrentHeldData.Value;
+            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 가져옵니다.
+            FoodData heldData = player.CurrentHeldData;
 
-            // 💡 과일 종류가 하나이므로 오직 "과일" 이름만 정직하게 확인합니다!
-            if (heldData.objectName == "과일")
+            // 💡 데이터 룰에 따라 'foodName' 필드로 정확하게 확인합니다.
+            if (heldData.foodName == "과일")
             {
                 hasFruit = true;
                 isBlending = true; // 투입하자마자 자동으로 조리(믹싱) 시작
@@ -47,14 +48,16 @@ public class Blender : MonoBehaviour, IInteractable
                 float speedModifier = UpgradeManager.Instance != null ? UpgradeManager.Instance.GetSpeedModifier(machineID) : 1f;
                 targetBlendTime = baseBlendTime * speedModifier;
 
-                // 손 비우고 블렌더 안에 과일 3D 비주얼 생성
-                player.ClearHand();
+                // 💡 손 비우기 전 프리팹 정보를 사용해 블렌더 내부에 과일 3D 비주얼 생성
                 if (heldData.prefab != null && fruitPlaceTransform != null)
                 {
                     spawnedVisual = Instantiate(heldData.prefab, fruitPlaceTransform);
                     spawnedVisual.transform.localPosition = Vector3.zero;
                     spawnedVisual.transform.localRotation = Quaternion.identity;
                 }
+
+                // 플레이어 손 비우기
+                player.ClearHand();
 
                 Debug.Log($"블렌더: 과일 투입 완료! 자동으로 갈기 시작합니다. (소요 시간: {targetBlendTime:F1}초)");
             }
@@ -121,10 +124,11 @@ public class Blender : MonoBehaviour, IInteractable
         if (spawnedVisual != null) Destroy(spawnedVisual);
 
         // 완수된 주스 1컵을 플레이어 빈손에 쏙 쥐여줍니다.
-        if (targetPlayer != null)
+        if (targetPlayer != null && cookedJuiceData != null)
         {
+            // 💡 구조체 대신 복구된 PlayerInteractor 규격에 따라 FoodData 에셋을 전달합니다.
             targetPlayer.HoldNewData(cookedJuiceData);
-            Debug.Log($"블렌더: 컵에 완전히 담았습니다! 플레이어에게 '{cookedJuiceData.objectName}' 지급 완료.");
+            Debug.Log($"블렌더: 컵에 완전히 담았습니다! 플레이어에게 '{cookedJuiceData.foodName}' 지급 완료.");
         }
     }
 }

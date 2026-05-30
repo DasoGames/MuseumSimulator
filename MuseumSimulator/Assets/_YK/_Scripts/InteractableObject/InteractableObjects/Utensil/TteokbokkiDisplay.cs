@@ -6,8 +6,9 @@ public class TteokbokkiDisplay : MonoBehaviour, IInteractable
     public int maxServings = 10; // 완성작 하나당 채워지는 최대 서빙(컵) 수
     
     [Header("결과물 데이터")]
-    // 💡 소분했을 때 플레이어 손에 쥐여줄 '컵에 담긴 떡볶이'의 구조체 데이터입니다.
-    public HoldableObject tteokbokkiCupData; // 이름: "떡볶이컵"
+    // 💡 기존 HoldableObject 구조체 대신 통합 스크립터블 오브젝트인 FoodData를 사용합니다!
+    [Tooltip("진열대에서 빈손으로 꺼낼 때 손님에게 판매할 소분용 떡볶이컵 에셋")]
+    public FoodData tteokbokkiCupData; // 에셋 이름: "떡볶이컵"
 
     [Header("진열대 상태 (Debug)")]
     [SerializeField] private bool hasFood = false;    // 현재 진열대에 떡볶이가 채워져 있는가?
@@ -27,7 +28,7 @@ public class TteokbokkiDisplay : MonoBehaviour, IInteractable
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
         if (player == null) return;
 
-        // [상황 1] 진열대가 비어있고, 플레이어가 완수된 음식을 들고 왔을 때 -> 진열대에 채우기
+        // 💡 [상황 1] 진열대가 비어있고, 플레이어가 완수된 음식을 들고 왔을 때 -> 진열대에 채우기
         if (!hasFood)
         {
             if (!player.IsHoldingItem)
@@ -36,12 +37,15 @@ public class TteokbokkiDisplay : MonoBehaviour, IInteractable
                 return;
             }
 
-            HoldableObject heldData = player.CurrentHeldData.Value;
+            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 가져옵니다.
+            FoodData heldData = player.CurrentHeldData;
 
+            // 💡 데이터 규칙에 맞게 'foodName' 필드로 필터링 및 검사를 수행합니다.
             // 오직 이름이 "완성된떡볶이"인 데이터만 받음
-            if (heldData.objectName == "완성된떡볶이")
+            if (heldData.foodName == "완성된떡볶이")
             {
-                player.ClearHand(); // 플레이어 손 비우기 (냄비/그릇 수거)
+                // 플레이어 손 비우기 (냄비/그릇 수거)
+                player.ClearHand(); 
                 
                 hasFood = true;
                 remainingServings = maxServings; // 10회로 충전!
@@ -49,7 +53,7 @@ public class TteokbokkiDisplay : MonoBehaviour, IInteractable
                 UpdateVisual();
                 Debug.Log($"진열대: 대형 떡볶이 판에 음식을 부었습니다! 이제 컵으로 판매 가능합니다. (남은 수량: {remainingServings}컵)");
             }
-            else if (heldData.objectName == "탄떡볶이")
+            else if (heldData.foodName == "탄떡볶이")
             {
                 Debug.LogWarning("진열대: 상하거나 탄 요리는 판매용 진열대에 올릴 수 없습니다!");
             }
@@ -60,17 +64,25 @@ public class TteokbokkiDisplay : MonoBehaviour, IInteractable
             return;
         }
 
-        // [상황 2] 진열대에 떡볶이가 채워져 있을 때 -> 빈손으로 누르면 한 컵씩 꺼내기
+        // 💡 [상황 2] 진열대에 떡볶이가 채워져 있을 때 -> 빈손으로 누르면 한 컵씩 꺼내기
         if (hasFood)
         {
             if (player.IsHoldingItem)
             {
-                Debug.LogWarning("진열대: 떡볶이를 컵에 담으려면 손을 비우고 상호작용하세요!");
+                Debug.LogWarning("진열대: 떡볶이를 컵에 담으려면 손을 비워고 상호작용하세요!");
+                return;
+            }
+
+            if (tteokbokkiCupData == null)
+            {
+                Debug.LogError("진열대: 'tteokbokkiCupData' 에셋이 인스펙터에 연결되지 않았습니다!");
                 return;
             }
 
             // 1컵 차감 및 플레이어에게 컵 지급
             remainingServings--;
+            
+            // 💡 플레이어 빈손에 완제품 떡볶이컵 FoodData 에셋을 안전하게 쥐여줍니다.
             player.HoldNewData(tteokbokkiCupData);
             Debug.Log($"진열대: 떡볶이를 한 컵 퍼서 손에 쥐었습니다. (남은 수량: {remainingServings}/{maxServings})");
 

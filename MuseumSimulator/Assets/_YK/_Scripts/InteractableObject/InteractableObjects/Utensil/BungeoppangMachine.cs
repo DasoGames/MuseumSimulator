@@ -8,9 +8,10 @@ public class BungeoppangMachine : MonoBehaviour, IInteractable
     public float baseBurnTime = 8f;      // 완수 후 방치 시 타버리는 시간 (초)
 
     [Header("결과물 데이터")]
-    // 이 데이터는 낱개가 아니라 '10개짜리 완성된 한 판(묶음)'을 의미합니다.
-    public HoldableObject cookedBungeoppangBatch; // 이름: "완성된붕어빵판"
-    public HoldableObject burntBungeoppangBatch;  // 이름: "탄붕어빵판"
+    // 💡 기존 HoldableObject 구조체 대신 스크립터블 오브젝트인 FoodData를 연결합니다!
+    // 이 데이터들은 낱개가 아니라 '10개짜리 한 판(묶음)' 데이터 에셋입니다.
+    public FoodData cookedBungeoppangBatch; // 인스펙터 에셋 이름: "완성된붕어빵판"
+    public FoodData burntBungeoppangBatch;  // 인스펙터 에셋 이름: "탄붕어빵판"
 
     [Header("기계 상태 (Debug)")]
     [SerializeField] private bool hasBatter = false;     // 판 전체에 반죽이 채워졌는가?
@@ -37,7 +38,7 @@ public class BungeoppangMachine : MonoBehaviour, IInteractable
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
         if (player == null) return;
 
-        // [단계 4] 완성 혹은 탄 상태 -> 빈손일 때 10개 한 판을 '한 번에' 통째로 수거
+        // 💡 [단계 4] 완성 혹은 탄 상태 -> 빈손일 때 10개 한 판을 '한 번에' 통째로 수거
         if (isDone)
         {
             if (player.IsHoldingItem)
@@ -46,15 +47,15 @@ public class BungeoppangMachine : MonoBehaviour, IInteractable
                 return;
             }
 
-            // 탄 타이머 체크 후 통째로 한 판 지급
+            // 탄 타이머 체크 후 알맞은 FoodData 에셋을 통째로 지급
             if (timer >= baseBurnTime)
             {
-                player.HoldNewData(burntBungeoppangBatch);
+                if (burntBungeoppangBatch != null) player.HoldNewData(burntBungeoppangBatch);
                 Debug.Log("붕어빵기계: 너무 방치되어 까맣게 타버린 붕어빵 10개 한 판을 통째로 꺼냈습니다!");
             }
             else
             {
-                player.HoldNewData(cookedBungeoppangBatch);
+                if (cookedBungeoppangBatch != null) player.HoldNewData(cookedBungeoppangBatch);
                 Debug.Log("붕어빵기계: 노릇노릇하게 잘 익은 붕어빵 10개 한 판을 통째로 꺼냈습니다!");
             }
 
@@ -63,7 +64,7 @@ public class BungeoppangMachine : MonoBehaviour, IInteractable
             return;
         }
 
-        // [단계 3] 조리가능상태 -> 빈손으로 누르면 10개 동시 조리 시작
+        // 💡 [단계 3] 조리가능상태 -> 빈손으로 누르면 10개 동시 조리 시작
         if (isReadyToCook && !isCooking)
         {
             if (player.IsHoldingItem)
@@ -76,7 +77,7 @@ public class BungeoppangMachine : MonoBehaviour, IInteractable
             return;
         }
 
-        // [재료 투입 단계] 반죽과 팥을 차례대로 판 전체에 채우기
+        // 💡 [재료 투입 단계] 반죽과 팥을 차례대로 판 전체에 채우기
         if (!isReadyToCook && !isCooking && !isDone)
         {
             if (!player.IsHoldingItem)
@@ -85,24 +86,26 @@ public class BungeoppangMachine : MonoBehaviour, IInteractable
                 return;
             }
 
-            HoldableObject heldData = player.CurrentHeldData.Value;
+            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 변경합니다.
+            FoodData heldData = player.CurrentHeldData;
 
+            // 💡 데이터 규칙에 맞춰 'foodName' 필드로 식별합니다.
             // [순서 1] 반죽 투입 -> 모든 틀에 동시에 깔림 (팥보다 먼저여야 함)
-            if (heldData.objectName == "밀가루 반죽" && !hasBatter)
+            if (heldData.foodName == "밀가루 반죽" && !hasBatter)
             {
                 hasBatter = true;
-                player.ClearHand();
+                player.ClearHand(); // 플레이어 손 비우기
                 UpdateVisuals();
                 Debug.Log("붕어빵기계: 판 전체에 [밀가루 반죽]을 깔았습니다. 이제 [팥]을 가져오세요.");
                 return;
             }
 
             // [순서 2] 팥 투입 -> 반죽이 있을 때만 가능하며 모든 틀에 동시에 채워짐
-            if (heldData.objectName == "팥" && hasBatter && !hasRedBean)
+            if (heldData.foodName == "팥" && hasBatter && !hasRedBean)
             {
                 hasRedBean = true;
                 isReadyToCook = true; // 10개 틀 모두 충족되어 조리가능상태 돌입
-                player.ClearHand();
+                player.ClearHand(); // 플레이어 손 비우기
                 UpdateVisuals();
                 Debug.Log("붕어빵기계: 모든 반죽 위에 [팥]을 채웠습니다! 빈손으로 E키를 눌러 뚜껑을 닫고 구우세요.");
                 return;

@@ -10,8 +10,9 @@ public class OdengMachine : MonoBehaviour, IInteractable
     public float baseBurnTime = 10f;    // 완수 후 방치 시 타버리는(폐기) 시간
 
     [Header("결과물 데이터")]
-    public HoldableObject cookedOdengData; // 이름: "완성된오뎅꼬치"
-    public HoldableObject burntOdengData;  // 이름: "탄오뎅꼬치"
+    // 💡 기존 HoldableObject 구조체 대신 통합 스크립터블 오브젝트인 FoodData를 참조합니다.
+    public FoodData cookedOdengData; // 에셋 이름: "완성된오뎅꼬치"
+    public FoodData burntOdengData;  // 에셋 이름: "탄오뎅꼬치"
 
     // 💡 개별 오뎅 슬롯의 상태를 관리하기 위한 내부 구조체
     [System.Serializable]
@@ -22,7 +23,7 @@ public class OdengMachine : MonoBehaviour, IInteractable
         public bool isDone;          // 완성되었는가?
         public float timer;          // 슬롯 개별 타이머
         public float targetCookTime; // 업그레이드가 반영된 이 슬롯의 최종 조리 시간
-        public GameObject visualRef; // 슬롯에 꽂힌 오뎅의 3D 프리팹 인스턴스 (선택사항)
+        public GameObject visualRef; // 슬롯에 꽂힌 오뎅의 3D 프리팹 인스턴스
     }
 
     [Header("현재 슬롯 상태들 (Debug)")]
@@ -46,7 +47,7 @@ public class OdengMachine : MonoBehaviour, IInteractable
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
         if (player == null) return;
 
-        // 1. 수거 우선 체크: 완성되거나 타버린 오뎅이 있다면 빈손일 때 하나 꺼내줍니다.
+        // 💡 [상황 1] 플레이어가 빈손일 때 -> 수거 우선 체크 (완성되거나 타버린 오뎅이 있다면 하나씩 꺼냄)
         if (!player.IsHoldingItem)
         {
             for (int i = 0; i < slots.Count; i++)
@@ -62,12 +63,14 @@ public class OdengMachine : MonoBehaviour, IInteractable
             return;
         }
 
-        // 2. 투입 체크: 플레이어가 생오뎅 꼬치를 들고 있다면 빈 슬롯에 꽂아 즉시 조리 시작
+        // 💡 [상황 2] 플레이어가 손에 재료를 들고 있을 때 -> 오뎅기계 빈 슬롯에 투입
         if (player.IsHoldingItem)
         {
-            HoldableObject heldData = player.CurrentHeldData.Value;
+            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 가져옵니다.
+            FoodData heldData = player.CurrentHeldData;
 
-            if (heldData.objectName == "오뎅이 꽂혀있는 꼬치")
+            // 💡 데이터 규칙에 맞게 'foodName' 필드로 필터링을 수행합니다.
+            if (heldData.foodName == "오뎅이 꽂혀있는 꼬치")
             {
                 // 빈 구멍 찾기
                 int emptySlotIndex = slots.FindIndex(x => !x.isOccupied);
@@ -89,7 +92,7 @@ public class OdengMachine : MonoBehaviour, IInteractable
     }
 
     // 빈 슬롯에 오뎅을 넣고 즉시 조리를 시작하는 함수
-    private void PutOdengInSlot(int index, HoldableObject heldData, PlayerInteractor player)
+    private void PutOdengInSlot(int index, FoodData heldData, PlayerInteractor player)
     {
         OdengSlot slot = slots[index];
         slot.isOccupied = true;
@@ -97,24 +100,20 @@ public class OdengMachine : MonoBehaviour, IInteractable
         slot.isDone = false;
         slot.timer = 0f;
 
-        // 💡 [업그레이드 연동] 기계의 속도 단축 비율 계산
-        float speedModifier = 1f;
-        if (UpgradeManager.Instance != null)
-        {
-            speedModifier = UpgradeManager.Instance.GetSpeedModifier(machineID);
-        }
+        // [업그레이드 연동] 기계의 속도 단축 비율 계산
+        float speedModifier = UpgradeManager.Instance != null ? UpgradeManager.Instance.GetSpeedModifier(machineID) : 1f;
         slot.targetCookTime = baseCookTime * speedModifier;
 
-        // 플레이어 손 비우기
-        player.ClearHand();
-
-        // (선택사항) 지정된 슬롯 위치에 오뎅 프리팹 생성
+        // 💡 손을 비우기 전에 프리팹 정보를 사용하여 슬롯 위치에 3D 비주얼을 복사 소환합니다.
         if (heldData.prefab != null && slotTransforms.Count > index && slotTransforms[index] != null)
         {
             slot.visualRef = Instantiate(heldData.prefab, slotTransforms[index]);
             slot.visualRef.transform.localPosition = Vector3.zero;
             slot.visualRef.transform.localRotation = Quaternion.identity;
         }
+
+        // 플레이어 손 비우기
+        player.ClearHand();
 
         slots[index] = slot; // 구조체 값 갱신
         Debug.Log($"오뎅기계: {index + 1}번 슬롯에 오뎅을 넣었습니다. 즉시 조리 시작! (소요 시간: {slot.targetCookTime:F1}초)");
@@ -124,17 +123,24 @@ public class OdengMachine : MonoBehaviour, IInteractable
     private void TakeOdengFromSlot(int index, PlayerInteractor player)
     {
         OdengSlot slot = slots[index];
+        FoodData resultData = null; // 💡 FoodData 타입 변수로 선언
 
-        // 타버리는 시간 기준을 넘었는지 확인
+        // 타버리는(불어 터지는) 시간 기준을 넘었는지 확인하여 분기 처리
         if (slot.timer >= baseBurnTime)
         {
-            player.HoldNewData(burntOdengData);
+            resultData = burntOdengData;
             Debug.Log($"오뎅기계: {index + 1}번 슬롯에서 너무 불어 터져서 '탄 오뎅 꼬치'를 꺼냈습니다.");
         }
         else
         {
-            player.HoldNewData(cookedOdengData);
+            resultData = cookedOdengData;
             Debug.Log($"오뎅기계: {index + 1}번 슬롯에서 맛있게 익은 '완성된 오뎅 꼬치'를 꺼냈습니다!");
+        }
+
+        // 💡 슬롯 데이터 초기화 및 비주얼 오브젝트 파괴 전에 안전하게 들려주기
+        if (resultData != null)
+        {
+            player.HoldNewData(resultData);
         }
 
         // 비주얼 오브젝트 파괴 및 슬롯 초기화
@@ -174,7 +180,6 @@ public class OdengMachine : MonoBehaviour, IInteractable
             else if (slot.isDone)
             {
                 slot.timer += Time.deltaTime;
-                // 필요한 경우 여기서 시간이 방치 시간을 넘었을 때 연기 가시화 연출 등을 추가 가능
             }
 
             slots[i] = slot; // 변경된 타이머 값을 리스트에 재저장

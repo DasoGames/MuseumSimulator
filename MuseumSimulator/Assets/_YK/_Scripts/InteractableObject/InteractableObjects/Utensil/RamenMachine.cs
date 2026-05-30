@@ -8,8 +8,9 @@ public class RamenMachine : MonoBehaviour, IInteractable
     public float baseBurnTime = 7f;     // 완수 후 방치 시 불거나 타버리는(폐기) 시간 (초)
 
     [Header("결과물 데이터")]
-    public HoldableObject cookedRamenData; // 이름: "완성된라면"
-    public HoldableObject burntRamenData;  // 이름: "탄라면" (또는 불어터진라면)
+    // 💡 기존 HoldableObject 구조체 대신 통합 스크립터블 오브젝트인 FoodData를 연결합니다!
+    public FoodData cookedRamenData; // 인스펙터 에셋 이름: "완성된라면"
+    public FoodData burntRamenData;  // 인스펙터 에셋 이름: "탄라면" (또는 불어터진라면)
 
     [Header("기계 상태 (Debug)")]
     [SerializeField] private bool hasRamenIngredient = false; // 기계에 라면 재료가 투입되었는가?
@@ -42,15 +43,15 @@ public class RamenMachine : MonoBehaviour, IInteractable
                 return;
             }
 
-            // 방치 타이머 체크 후 알맞은 데이터 지급
+            // 방치 타이머 체크 후 알맞은 FoodData 에셋을 플레이어 손에 지급
             if (timer >= baseBurnTime)
             {
-                player.HoldNewData(burntRamenData);
+                if (burntRamenData != null) player.HoldNewData(burntRamenData);
                 Debug.Log("라면기계: 너무 오랫동안 방치해서 불어터지고 탄 라면을 수거했습니다.");
             }
             else
             {
-                player.HoldNewData(cookedRamenData);
+                if (cookedRamenData != null) player.HoldNewData(cookedRamenData);
                 Debug.Log("라면기계: 보글보글 맛있게 끓여진 완벽한 라면을 수거했습니다!");
             }
 
@@ -81,13 +82,16 @@ public class RamenMachine : MonoBehaviour, IInteractable
                 return;
             }
 
-            HoldableObject heldData = player.CurrentHeldData.Value;
+            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 가져옵니다.
+            FoodData heldData = player.CurrentHeldData;
 
-            // 들고 있는 재료의 이름이 정확히 "라면"일 때만 작동
-            if (heldData.objectName == "라면")
+            // 💡 데이터 규칙에 맞게 'foodName' 필드로 정확하게 확인합니다.
+            if (heldData.foodName == "라면")
             {
                 hasRamenIngredient = true;
-                player.ClearHand(); // 플레이어 손에 든 재료 소모
+                
+                // 💡 손을 비우기 전에 필요한 처리를 끝내고 깔끔하게 클리어합니다.
+                player.ClearHand(); 
                 
                 UpdateVisuals();
                 Debug.Log("라면기계: 용기에 라면 재료를 세팅했습니다! 빈손으로 한 번 더 누르면 조리가 시작됩니다.");
