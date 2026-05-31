@@ -70,9 +70,12 @@ public class PlayerInteractor : MonoBehaviour
 
         if (spawnedHandObject != null)
         {
-            // 위치와 회전을 handSlot에 딱 맞게 정렬합니다.
+            // 위치는 handSlot의 정중앙에 배치합니다.
             spawnedHandObject.transform.localPosition = Vector3.zero;
-            spawnedHandObject.transform.localRotation = Quaternion.identity;
+            
+            // ⭐ [핵심 수정] FoodData 에셋에 개별로 지정해 둔 손 전용 회전값과 크기를 대입합니다!
+            spawnedHandObject.transform.localRotation = Quaternion.Euler(newData.handRotation);
+            spawnedHandObject.transform.localScale = newData.handScale;
 
             // 💡 들고 있는 상태에서 물리 연산이나 충돌이 튀지 않도록 리지드바디와 콜라이더를 꺼줍니다.
             Rigidbody rb = spawnedHandObject.GetComponent<Rigidbody>();
@@ -83,7 +86,7 @@ public class PlayerInteractor : MonoBehaviour
         }
 
         UpdateInspectorDebug();
-        Debug.Log($"플레이어 손: '{newData.foodName}' 에셋을 들고 3D 프리팹 생성을 완료했습니다.");
+        Debug.Log($"플레이어 손: '{newData.foodName}' 에셋을 들고 고유 크기({newData.handScale}) 및 회전({newData.handRotation}) 적용을 완료했습니다.");
     }
 
     /// <summary>
