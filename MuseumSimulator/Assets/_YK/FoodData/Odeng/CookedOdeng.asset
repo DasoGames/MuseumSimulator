@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47a8f9643f1461d42b5f2a3d042dfc40, type: 3}
+  m_Name: CookedOdeng
+  m_EditorClassIdentifier: Assembly-CSharp::FoodData
+  foodName: Odeng
+  price: 0
+  icon: {fileID: 21300000, guid: c3f02b0134c52004db228d2f4d5bbaf7, type: 3}
+  prefab: {fileID: 2879116044453678441, guid: f3eea9c9116319448b527142c6c15f17, type: 3}
+  spawnScale: {x: 1, y: 1, z: 1}
+  spawnRotation: {x: 0, y: 0, z: 0}
+  handScale: {x: 80, y: 80, z: 80}
+  handRotation: {x: 0, y: 0, z: 0}

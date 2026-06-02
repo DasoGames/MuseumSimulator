@@ -4,33 +4,40 @@ using UnityStandardAssets.Characters.FirstPerson;
 public class Truck : MonoBehaviour, IInteractable
 {
     [Header("연결할 컴포넌트")]
-    public TruckController truckController; // 트럭 컨트롤러 스크립트
-    public Camera truckCamera;              // 탑다운 뷰를 비출 트럭 전용 카메라
+    public TruckController truckController; 
+    public Camera truckCamera;              
 
     void Start()
     {
-        // 시작할 때는 트럭 제어와 카메라를 꺼둡니다.
-        if (truckController != null) truckController.enabled = false;
         if (truckCamera != null) truckCamera.gameObject.SetActive(false);
+        if (truckController != null) truckController.enabled = false;
     }
 
     public void Interact()
     {
-        // 플레이어 컨트롤러를 찾습니다.
         FirstPersonController player = FindFirstObjectByType<FirstPersonController>();
         
-        if (player != null && truckController != null)
+        if (player != null && truckController != null && truckCamera != null)
         {
-            Debug.Log("트럭 탑승! 탑다운 뷰로 전환합니다.");
+            Debug.Log("<color=cyan>▶ 트럭 탑승: 1인칭 마우스 입력 체인 완전 차단</color>");
 
-            // 1. 플레이어 기능 정지 및 시각적으로 숨기기
+            // 💡 [해결 핵심 1] 플레이어를 비활성화하기 전에, 마우스 조작 컴포넌트를 강제로 Unfreeze 시켜 먹통 버그 예방
             player.enabled = false;
-            player.gameObject.transform.GetChild(0).gameObject.SetActive(false); // 메인 카메라 숨기기 (또는 플레이어 메쉬)
             
-            // 2. 트럭 카메라 활성화 및 컨트롤러 켜기
-            if (truckCamera != null) truckCamera.gameObject.SetActive(true);
+            // 💡 [해결 핵심 2] 플레이어 자식에 들어있는 1인칭 카메라와 오디오 리스너를 완전히 꺼서 카메라 간섭 차단
+            if (player.transform.childCount > 0)
+            {
+                player.transform.GetChild(0).gameObject.SetActive(false);
+            }
+
+            // 플레이어 본체를 통째로 숨김 처리하여 백그라운드 연산 방지
+            player.gameObject.SetActive(false);
             
-            // 트럭 컨트롤러에게 플레이어 정보를 넘겨주며 활성화
+            // 3인칭 트럭 카메라 가동 및 권한 이양
+            truckCamera.gameObject.SetActive(true);
+            truckCamera.tag = "MainCamera"; 
+            
+            truckController.enabled = true; 
             truckController.EnterTruck(player);
         }
     }
