@@ -299,7 +299,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   truckCamera: {fileID: 6651875779732277987}
-  cameraPivot: {fileID: 0}
+  cameraPivot: {fileID: 4095198825780147429}
   cameraDistance: 14
   mouseSensitivity: 2
   minYAngle: -5

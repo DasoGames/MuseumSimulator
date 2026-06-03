@@ -1,45 +1,64 @@
 using UnityEngine;
+using UnityEngine.UI; 
+using TMPro;        
 using System.Collections.Generic;
 
 public class OdengMachine : MonoBehaviour, IInteractable
 {
-    [Header("오뎅 기계 설정")]
+    [Header("오뎅 기계 고유 설정")]
+    [Tooltip("UpgradeManager에 등록한 고유 식별 이름")]
     public string machineID = "OdengMachine";
-    public int maxSlots = 4;            // 이 기계에 동시에 꽂을 수 있는 최대 오뎅 수 (ex: 4구 짜리 기계)
-    public float baseCookTime = 8f;     // 오뎅 하나 조리에 걸리는 기본 시간
-    public float baseBurnTime = 10f;    // 완수 후 방치 시 타버리는(폐기) 시간
+
+    public float baseCookTime = 8f;      // 오뎅 조리에 걸리는 기본 시간 (초)
+    public float baseBurnTime = 10f;     // 완성 후 불어 터지기(타버리기)까지의 기본 방치 시간 (초)
 
     [Header("결과물 데이터")]
-    // 💡 기존 HoldableObject 구조체 대신 통합 스크립터블 오브젝트인 FoodData를 참조합니다.
-    public FoodData cookedOdengData; // 에셋 이름: "완성된오뎅꼬치"
-    public FoodData burntOdengData;  // 에셋 이름: "탄오뎅꼬치"
+    public FoodData cookedOdengData;     
+    public FoodData burntOdengData;      
 
-    // 💡 개별 오뎅 슬롯의 상태를 관리하기 위한 내부 구조체
-    [System.Serializable]
-    public struct OdengSlot
+    [Header("⭐ 요리 결과 비주얼 오브젝트 설정")]
+    [Tooltip("오뎅기계 자식으로 넣어둔 '완성된 오뎅판 3D 모델' 오브젝트를 연결하세요.")]
+    public GameObject cookedVisualObject;
+
+    [Tooltip("오뎅기계 자식으로 넣어둔 '불어서 망가진 오뎅판 3D 모델' 오브젝트를 연결하세요.")]
+    public GameObject burntVisualObject;
+
+    [Header("⭐ 투입 재료 배치 포인트 설정")]
+    [Tooltip("재료가 소환될 위치(Transform)를 연결하세요. (빈 오브젝트)")]
+    public Transform ingredientPoint;
+
+    [Header("⭐ 조리 및 경고 UI 설정")]
+    public GameObject odengUIPanel;
+    public Image circleProgressSlider;
+    public TMP_Text statusText;
+
+    [Header("⭐ 연출 오브젝트 세팅 (FX)")]
+    [Tooltip("🔥 육수가 보글보글 끓거나 김이 모락모락 나는 조리 중 연출용 FX 오브젝트")]
+    public GameObject cookingFX;
+
+    [Header("⭐ UI 연출 색상 세팅")]
+    public Color normalCookColor = Color.green; 
+    public Color alertMaxColor = Color.red;     
+    [Tooltip("방치 되었을 때 초당 깜빡거리는 속도")]
+    public float blinkSpeed = 8f;
+
+    // 단일 플로우 제어 변수들
+    private bool isReadyToCook = false; 
+    private bool isCooking = false;     
+    private bool isDone = false;        
+
+    private float timer = 0f;
+    private float targetCookTime = 0f;  
+    
+    private GameObject spawnedIngredientVisual = null;
+
+    void Start()
     {
-        public bool isOccupied;      // 이 구멍에 오뎅이 꽂혀있는가?
-        public bool isCooking;       // 조리 중인가?
-        public bool isDone;          // 완성되었는가?
-        public float timer;          // 슬롯 개별 타이머
-        public float targetCookTime; // 업그레이드가 반영된 이 슬롯의 최종 조리 시간
-        public GameObject visualRef; // 슬롯에 꽂힌 오뎅의 3D 프리팹 인스턴스
-    }
-
-    [Header("현재 슬롯 상태들 (Debug)")]
-    [SerializeField] private List<OdengSlot> slots = new List<OdengSlot>();
-
-    [Header("슬롯별 3D 배치 위치")]
-    public List<Transform> slotTransforms = new List<Transform>(); // 오뎅이 꽂힐 위치들 (maxSlots 개수만큼 필요)
-
-    private void Awake()
-    {
-        // 설정된 최대 슬롯 수만큼 슬롯 리스트 초기화
-        slots.Clear();
-        for (int i = 0; i < maxSlots; i++)
-        {
-            slots.Add(new OdengSlot { isOccupied = false });
-        }
+        UpdateVisuals(false, false);
+        if (odengUIPanel != null) odengUIPanel.SetActive(false);
+        
+        // 💡 게임 시작 시 조리 FX 이펙트는 안전하게 꺼둡니다.
+        if (cookingFX != null) cookingFX.SetActive(false);
     }
 
     public void Interact()
@@ -47,142 +66,200 @@ public class OdengMachine : MonoBehaviour, IInteractable
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
         if (player == null) return;
 
-        // 💡 [상황 1] 플레이어가 빈손일 때 -> 수거 우선 체크 (완성되거나 타버린 오뎅이 있다면 하나씩 꺼냄)
-        if (!player.IsHoldingItem)
+        // [상황 1] 수거 프로세스
+        if (isDone)
         {
-            for (int i = 0; i < slots.Count; i++)
+            if (player.IsHoldingItem)
             {
-                if (slots[i].isOccupied && slots[i].isDone)
-                {
-                    // 꺼내기 프로세스 실행
-                    TakeOdengFromSlot(i, player);
-                    return;
-                }
+                Debug.LogWarning("오뎅기계: 완성된 요리를 꺼내려면 손을 비워야 합니다!");
+                return;
             }
-            Debug.Log("오뎅기계: 현재 수거 가능한 완성된 오뎅이 없습니다.");
-            return;
-        }
 
-        // 💡 [상황 2] 플레이어가 손에 재료를 들고 있을 때 -> 오뎅기계 빈 슬롯에 투입
-        if (player.IsHoldingItem)
-        {
-            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 가져옵니다.
-            FoodData heldData = player.CurrentHeldData;
-
-            // 💡 데이터 규칙에 맞게 'foodName' 필드로 필터링을 수행합니다.
-            if (heldData.foodName == "오뎅이 꽂혀있는 꼬치")
+            if (timer >= baseBurnTime)
             {
-                // 빈 구멍 찾기
-                int emptySlotIndex = slots.FindIndex(x => !x.isOccupied);
-
-                if (emptySlotIndex != -1)
-                {
-                    PutOdengInSlot(emptySlotIndex, heldData, player);
-                }
-                else
-                {
-                    Debug.LogWarning("오뎅기계: 모든 슬롯이 가득 찼습니다! 완성된 오뎅을 먼저 빼세요.");
-                }
+                if (burntOdengData != null) player.HoldNewData(burntOdengData);
+                Debug.Log("오뎅기계: 너무 오래 방치되어 퉁퉁 불어 터진 오뎅을 꺼냈습니다.");
             }
             else
             {
-                Debug.LogWarning("오뎅기계: 이 기계에는 오뎅 꼬치만 넣을 수 있습니다.");
+                if (cookedOdengData != null) player.HoldNewData(cookedOdengData);
+                Debug.Log("오뎅기계: 맛있게 익은 국물 가득 오뎅 꼬치를 꺼냈습니다!");
+            }
+
+            ResetMachine();
+            return;
+        }
+
+        // [상황 2] 조리 시작!
+        if (isReadyToCook && !isCooking)
+        {
+            if (player.IsHoldingItem)
+            {
+                Debug.LogWarning("오뎅기계: 조리를 시작하려면 손을 비우고 상호작용하세요!");
+                return;
+            }
+
+            StartCooking();
+            return;
+        }
+
+        // [상황 3] 생재료 투입
+        if (!isReadyToCook && !isCooking && !isDone)
+        {
+            if (!player.IsHoldingItem)
+            {
+                Debug.Log("오뎅기계: 현재 비어있습니다. 날것의 오뎅 재료를 채워주세요.");
+                return;
+            }
+
+            FoodData heldData = player.CurrentHeldData;
+
+            if (heldData.foodName == "Raw Odengs")
+            {
+                isReadyToCook = true;
+
+                if (ingredientPoint != null && heldData.prefab != null)
+                {
+                    Quaternion finalRotation = ingredientPoint.rotation * Quaternion.Euler(heldData.spawnRotation);
+                    spawnedIngredientVisual = Instantiate(heldData.prefab, ingredientPoint.position, finalRotation, this.transform);
+                    spawnedIngredientVisual.transform.localScale = heldData.spawnScale;
+                }
+
+                player.ClearHand();
+                Debug.Log("오뎅기계: 재료 안착 완료! 빈손으로 E키를 눌러 육수를 끓이세요.");
+            }
+            else
+            {
+                Debug.LogWarning("오뎅기계: 이 기계에는 지정된 오뎅 생재료만 넣을 수 있습니다.");
             }
         }
     }
 
-    // 빈 슬롯에 오뎅을 넣고 즉시 조리를 시작하는 함수
-    private void PutOdengInSlot(int index, FoodData heldData, PlayerInteractor player)
+    private void StartCooking()
     {
-        OdengSlot slot = slots[index];
-        slot.isOccupied = true;
-        slot.isCooking = true;
-        slot.isDone = false;
-        slot.timer = 0f;
+        isReadyToCook = false;
+        isCooking = true;
+        timer = 0f;
 
-        // [업그레이드 연동] 기계의 속도 단축 비율 계산
         float speedModifier = UpgradeManager.Instance != null ? UpgradeManager.Instance.GetSpeedModifier(machineID) : 1f;
-        slot.targetCookTime = baseCookTime * speedModifier;
+        targetCookTime = baseCookTime * speedModifier;
 
-        // 💡 손을 비우기 전에 프리팹 정보를 사용하여 슬롯 위치에 3D 비주얼을 복사 소환합니다.
-        if (heldData.prefab != null && slotTransforms.Count > index && slotTransforms[index] != null)
+        if (odengUIPanel != null) odengUIPanel.SetActive(true);
+        if (circleProgressSlider != null) circleProgressSlider.color = normalCookColor;
+
+        // ⭐ [FX 연출] 불을 켜고 끓이기 시작했으므로 조리용 연기/거품 FX 활성화!
+        if (cookingFX != null) 
         {
-            slot.visualRef = Instantiate(heldData.prefab, slotTransforms[index]);
-            slot.visualRef.transform.localPosition = Vector3.zero;
-            slot.visualRef.transform.localRotation = Quaternion.identity;
+            cookingFX.SetActive(true);
         }
 
-        // 플레이어 손 비우기
-        player.ClearHand();
-
-        slots[index] = slot; // 구조체 값 갱신
-        Debug.Log($"오뎅기계: {index + 1}번 슬롯에 오뎅을 넣었습니다. 즉시 조리 시작! (소요 시간: {slot.targetCookTime:F1}초)");
-    }
-
-    // 완성된 오뎅을 슬롯에서 꺼내 플레이어에게 쥐여주는 함수
-    private void TakeOdengFromSlot(int index, PlayerInteractor player)
-    {
-        OdengSlot slot = slots[index];
-        FoodData resultData = null; // 💡 FoodData 타입 변수로 선언
-
-        // 타버리는(불어 터지는) 시간 기준을 넘었는지 확인하여 분기 처리
-        if (slot.timer >= baseBurnTime)
-        {
-            resultData = burntOdengData;
-            Debug.Log($"오뎅기계: {index + 1}번 슬롯에서 너무 불어 터져서 '탄 오뎅 꼬치'를 꺼냈습니다.");
-        }
-        else
-        {
-            resultData = cookedOdengData;
-            Debug.Log($"오뎅기계: {index + 1}번 슬롯에서 맛있게 익은 '완성된 오뎅 꼬치'를 꺼냈습니다!");
-        }
-
-        // 💡 슬롯 데이터 초기화 및 비주얼 오브젝트 파괴 전에 안전하게 들려주기
-        if (resultData != null)
-        {
-            player.HoldNewData(resultData);
-        }
-
-        // 비주얼 오브젝트 파괴 및 슬롯 초기화
-        if (slot.visualRef != null) Destroy(slot.visualRef);
-        
-        slot.isOccupied = false;
-        slot.isCooking = false;
-        slot.isDone = false;
-        slot.timer = 0f;
-        slot.visualRef = null;
-
-        slots[index] = slot; // 구조체 값 갱신
+        Debug.Log($"오뎅기계: 조리를 시작합니다! 불이 켜져 육수 FX가 가동됩니다.");
     }
 
     void Update()
     {
-        // 💡 모든 슬롯을 실시간으로 돌며 각각 독립적인 타이머를 증가시킵니다!
-        for (int i = 0; i < slots.Count; i++)
+        // 1. 🔥 정직하게 오뎅이 익어가는 상태
+        if (isCooking)
         {
-            if (!slots[i].isOccupied) continue;
+            timer += Time.deltaTime;
+            float progress = timer / targetCookTime;
+            
+            UpdateProgressUI(progress, $"{Mathf.RoundToInt(Mathf.Clamp01(progress) * 100f)}%");
 
-            OdengSlot slot = slots[i];
-
-            // A. 아직 조리 중인 경우
-            if (slot.isCooking)
+            if (timer >= targetCookTime)
             {
-                slot.timer += Time.deltaTime;
-                if (slot.timer >= slot.targetCookTime)
+                isCooking = false;
+                isDone = true;
+                timer = 0f; 
+
+                // 생재료 비주얼 청소
+                if (spawnedIngredientVisual != null) Destroy(spawnedIngredientVisual);
+
+                // ⭐ [FX 연출] 조리가 완료되어 불을 껐으므로 끓는 연기/거품 FX를 꺼줍니다.
+                if (cookingFX != null) 
                 {
-                    slot.isCooking = false;
-                    slot.isDone = true;
-                    slot.timer = 0f; // 이 타이머는 이제 완성 후 방치 시간(탄 타이머)으로 사용됩니다.
-                    Debug.Log($"오뎅기계: {i + 1}번 슬롯의 오뎅 조리가 완료되었습니다!");
+                    cookingFX.SetActive(false);
+                }
+
+                // 완성 3D 모델 ON
+                UpdateVisuals(true, false);
+                Debug.Log("오뎅기계: 오뎅 조리 완료! 방치하면 불어 터집니다.");
+            }
+        }
+
+        // 2. 🚨 요리는 끝났으나 수거하지 않아 퉁퉁 불어 터지는 위험 상태 (ALERT 연출)
+        if (isDone)
+        {
+            timer += Time.deltaTime;
+            float burnProgress = timer / baseBurnTime;
+
+            if (timer < baseBurnTime)
+            {
+                Color currentAlertColor = Color.Lerp(normalCookColor, alertMaxColor, burnProgress);
+                float blinkAlpha = Mathf.Lerp(0.2f, 1.0f, Mathf.Abs(Mathf.Sin(Time.time * blinkSpeed)));
+                currentAlertColor.a = blinkAlpha;
+
+                if (circleProgressSlider != null)
+                {
+                    circleProgressSlider.color = currentAlertColor;
+                    circleProgressSlider.fillAmount = 1f; 
+                }
+
+                if (statusText != null)
+                {
+                    statusText.text = "<color=red>!!</color>";
+                    statusText.alpha = blinkAlpha;
                 }
             }
-            // B. 조리 완료 후 꺼내지 않고 방치되고 있는 경우
-            else if (slot.isDone)
+            else
             {
-                slot.timer += Time.deltaTime;
+                // 완전히 버닝 타임을 초과하여 퉁퉁 불어 터진 순간
+                if (cookedVisualObject != null && cookedVisualObject.activeSelf)
+                {
+                    UpdateVisuals(false, true);
+                    
+                    if (circleProgressSlider != null) circleProgressSlider.fillAmount = 0f;
+                    if (statusText != null) { statusText.text = "SPOILED"; statusText.alpha = 1f; }
+                    Debug.Log("<color=red>오뎅기계: 결국 오뎅이 너무 불어서 상품 가치를 상실했습니다!</color>");
+                }
             }
-
-            slots[i] = slot; // 변경된 타이머 값을 리스트에 재저장
         }
+    }
+
+    private void UpdateProgressUI(float progressNormalized, string textMessage)
+    {
+        progressNormalized = Mathf.Clamp01(progressNormalized);
+        if (circleProgressSlider != null) circleProgressSlider.fillAmount = progressNormalized;
+        if (statusText != null)
+        {
+            statusText.text = textMessage;
+            statusText.alpha = 1f;
+        }
+    }
+
+    private void UpdateVisuals(bool showCooked, bool showBurnt)
+    {
+        if (cookedVisualObject != null) cookedVisualObject.SetActive(showCooked);
+        if (burntVisualObject != null) burntVisualObject.SetActive(showBurnt);
+    }
+
+    private void ResetMachine()
+    {
+        isReadyToCook = false;
+        isCooking = false;
+        isDone = false;
+        timer = 0f;
+        targetCookTime = 0f;
+
+        if (spawnedIngredientVisual != null) Destroy(spawnedIngredientVisual);
+        if (odengUIPanel != null) odengUIPanel.SetActive(false);
+
+        // ⭐ [FX 연출] 수거해가거나 강제 초기화가 일어날 때 혹시 켜져 있을 FX를 안전하게 소등
+        if (cookingFX != null) 
+        {
+            cookingFX.SetActive(false);
+        }
+
+        UpdateVisuals(false, false);
     }
 }

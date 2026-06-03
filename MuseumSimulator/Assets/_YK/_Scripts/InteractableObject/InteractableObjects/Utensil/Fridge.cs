@@ -3,19 +3,56 @@ using UnityStandardAssets.Characters.FirstPerson;
 
 public class Fridge : MonoBehaviour, IInteractable
 {
-    [Header("UI 설정")]
+    [Header("UI 설정 (프리팹일 때는 비워두셔도 됩니다)")]
     public Canvas fridgeCanvas;
+
+    [Header("실시간 수색 설정")]
+    [Tooltip("씬에 미리 깔아둔 냉장고 Canvas 오브젝트의 정확한 이름을 적어주세요.")]
+    public string targetCanvasName = "FridgeCanvas";
 
     private bool isUsing = false;
     private FirstPersonController playerController;
 
+    void Start()
+    {
+        // 💡 [핵심 추가] 프리팹이라서 인스펙터 매핑이 끊겨 있다면, 씬에서 직접 찾아옵니다.
+        if (fridgeCanvas == null)
+        {
+            // 1. 이름으로 찾기 방식
+            GameObject canvasObj = GameObject.Find(targetCanvasName);
+            if (canvasObj != null)
+            {
+                fridgeCanvas = canvasObj.GetComponent<Canvas>();
+            }
+
+            // 2. 만약 이름으로 못 찾았다면 태그로 찾는 보험용 예외 처리
+            if (fridgeCanvas == null)
+            {
+                GameObject taggedCanvas = GameObject.FindWithTag("FridgeUI");
+                if (taggedCanvas != null)
+                {
+                    fridgeCanvas = taggedCanvas.GetComponent<Canvas>();
+                }
+            }
+        }
+
+        // 💡 냉장고가 스폰될 때는 당연히 UI 화면을 꺼둡니다.
+        if (fridgeCanvas != null)
+        {
+            fridgeCanvas.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError($"Fridge: 씬에서 '{targetCanvasName}' 이름이나 'FridgeUI' 태그를 가진 캔버스를 찾을 수 없습니다!");
+        }
+    }
+
     public void Interact()
     {
-        // 이미 냉장고 UI를 열어둔 상태라면 중복 실행 방지
         if (isUsing) return;
 
         playerController = FindFirstObjectByType<FirstPersonController>();
-        if (playerController != null)
+        if (playerController != null && fridgeCanvas != null)
         {
             EnterFridgeMode();
         }
@@ -25,14 +62,11 @@ public class Fridge : MonoBehaviour, IInteractable
     {
         isUsing = true;
         
-        // 1. 플레이어 이동 및 마우스 시점 회전만 그 자리에서 정지
         playerController.enabled = false; 
         
-        // 2. 냉장고 식재료를 클릭할 수 있도록 마우스 커서 활성화
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // 3. 냉장고 UI 화면 표시
         fridgeCanvas.gameObject.SetActive(true);
         
         Debug.Log("냉장고: 그 자리에서 시선을 고정하고 냉장고 UI를 열었습니다.");
@@ -42,7 +76,6 @@ public class Fridge : MonoBehaviour, IInteractable
     {
         if (isUsing)
         {
-            // 냉장고를 보다가 ESC 키를 누르면 원래 플레이 상태로 복귀
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 ExitFridgeMode();
@@ -52,13 +85,16 @@ public class Fridge : MonoBehaviour, IInteractable
 
     private void ExitFridgeMode()
     {
-        // 1. 냉장고 UI 끄기
-        fridgeCanvas.gameObject.SetActive(false);
+        if (fridgeCanvas != null)
+        {
+            fridgeCanvas.gameObject.SetActive(false);
+        }
 
-        // 2. 플레이어 조작 및 시점 회전 다시 허용
-        playerController.enabled = true;
+        if (playerController != null)
+        {
+            playerController.enabled = true;
+        }
 
-        // 3. 다시 인게임 조작을 위해 마우스 커서 숨기고 잠금
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
