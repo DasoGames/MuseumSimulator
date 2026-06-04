@@ -1,0 +1,411 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &343303071594772712
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6306712299908111685}
+  m_Layer: 0
+  m_Name: Cross_Walk_Set
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6306712299908111685
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343303071594772712}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.96904, y: 0, z: 10.51563}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7023204442691628837}
+  - {fileID: 7103174220681352820}
+  - {fileID: 8433447109600301382}
+  - {fileID: 2829154769662421535}
+  - {fileID: 6606453440196479431}
+  - {fileID: 1744868002953116556}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1671713974913716111
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6306712299908111685}
+    m_Modifications:
+    - target: {fileID: 5176353179539348722, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_Name
+      value: Pedestrian_Crossing_01_Marking (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.03096
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.48437
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+--- !u!4 &6606453440196479431 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+  m_PrefabInstance: {fileID: 1671713974913716111}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3308639794338998637
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6306712299908111685}
+    m_Modifications:
+    - target: {fileID: 5176353179539348722, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_Name
+      value: Pedestrian_Crossing_01_Marking
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.03096
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.51563
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+--- !u!4 &7023204442691628837 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+  m_PrefabInstance: {fileID: 3308639794338998637}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3318662782659121212
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6306712299908111685}
+    m_Modifications:
+    - target: {fileID: 5176353179539348722, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_Name
+      value: Pedestrian_Crossing_01_Marking (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.03096
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -10.51563
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+--- !u!4 &7103174220681352820 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+  m_PrefabInstance: {fileID: 3318662782659121212}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4149035786506671886
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6306712299908111685}
+    m_Modifications:
+    - target: {fileID: 5176353179539348722, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_Name
+      value: Pedestrian_Crossing_01_Marking (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.03096
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.5156298
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+--- !u!4 &8433447109600301382 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+  m_PrefabInstance: {fileID: 4149035786506671886}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6100914398357847492
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6306712299908111685}
+    m_Modifications:
+    - target: {fileID: 5176353179539348722, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_Name
+      value: Pedestrian_Crossing_01_Marking (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.03096
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 9.48437
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+--- !u!4 &1744868002953116556 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+  m_PrefabInstance: {fileID: 6100914398357847492}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &7772900833188703319
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6306712299908111685}
+    m_Modifications:
+    - target: {fileID: 5176353179539348722, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_Name
+      value: Pedestrian_Crossing_01_Marking (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.03096
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.4843702
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+--- !u!4 &2829154769662421535 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5520790158298334792, guid: d6bb7ea8503d55243b9388fac9ec0ecf, type: 3}
+  m_PrefabInstance: {fileID: 7772900833188703319}
+  m_PrefabAsset: {fileID: 0}
