@@ -8,54 +8,14 @@ public class StopScript : MonoBehaviour
     public bool stop = true;
     public int priority = 0;
 
+    [Header("?? 물리 정지선 장벽 오브젝트")]
+    public GameObject StopperCollider;
 
-    // Start is called before the first frame update
-    void Start()
+    public void CanGo(bool isRedLight)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    void FixedUpdate()
-    {
-        priority = 0;
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        CarAIController carController = other.gameObject.GetComponent<CarAIController>();
-
-        if (carController != null)
+        if (StopperCollider != null)
         {
-            priority++;
-            if (stop && !carController.objectDetected)
-            {
-                carController.SetSpeed(0);
-                carController.CheckPointSearch = false;
-            }
-
-            if (!stop && !carController.objectDetected)
-            {
-                carController.SetSpeed(carController.speedLimit);
-                carController.CheckPointSearch = true;
-            }
+            StopperCollider.SetActive(isRedLight);
         }
     }
-
-    private void OnTriggerExit(Collider other)
-    {
-        CarAIController carController = other.gameObject.GetComponent<CarAIController>();
-
-        if (carController != null)
-        {
-            carController.SetSpeed(carController.speedLimit);
-            carController.CheckPointSearch = true;
-        }
-    }
-
 }
