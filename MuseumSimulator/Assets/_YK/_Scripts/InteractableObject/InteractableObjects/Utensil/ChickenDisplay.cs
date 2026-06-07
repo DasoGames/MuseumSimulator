@@ -1,26 +1,40 @@
 using UnityEngine;
+using UnityEngine.UI; // 💡 원형 슬라이더(Image) 제어용 추가
+using TMPro;        // 💡 텍스트 제어용 추가
 using System.Collections.Generic;
 
 public class ChickenDisplay : MonoBehaviour, IInteractable
 {
     [Header("진열대 설정")]
-    public int maxStorage = 10;         // 진열대에 최대로 쌓아둘 수 있는 치킨 개수
+    [Tooltip("진열대 최대 수용량 (ex: 튀김기에서 한 판 건질 때마다 대량 충전되는 공간 용량)")]
+    public int maxStorage = 30; 
     
     [Header("결과물 데이터")]
-    // 💡 기존 HoldableObject 구조체 대신 스크립터블 오브젝트인 FoodData를 사용합니다!
-    [Tooltip("진열대에서 빈손으로 꺼낼 때 손님에게 판매할 테이크아웃 치킨컵 에셋")]
-    public FoodData chickenCupData; // 에셋 이름: "치킨컵" 또는 "닭강정컵"
+    [Tooltip("진열대에서 빈손으로 꺼낼 때 손님에게 판매할 소분용 테이크아웃 치킨컵 에셋")]
+    public FoodData chickenCupData; // 에셋 이름: "치킨컵" 혹은 "닭강정컵"
 
     [Header("현재 재고 상태 (Debug)")]
-    [SerializeField] private int currentStock = 0; // 현재 진열된 치킨 수량
+    [SerializeField] private int currentStock = 0; // 현재 진열대에 쌓여있는 낱개 치킨 조각(또는 슬롯) 개수
 
-    [Header("시각적 연출용 목록 (선택사항)")]
-    // 치킨 재고 수량(0~10개)에 맞춰 하나씩 켜고 꺼줄 3D 프리팹 오브젝트 리스트
+    [Header("⭐ 시각적 연출용 목록 (최대 용량 매핑)")]
+    [Tooltip("진열대 자식으로 배치해 둔 낱개 치킨 3D 오브젝트들을 차곡차곡 쌓이는 순서대로 전부 연결하세요!")]
     public List<GameObject> chickenVisuals = new List<GameObject>();
+
+    [Header("⭐ 진열대 UI 설정")]
+    [Tooltip("진열대 UI 전체를 감싸는 부모 오브젝트 (재고가 0개일 때는 숨기기용)")]
+    public GameObject displayUIPanel;
+    
+    [Tooltip("Image Type이 Filled(Radial 360)로 설정된 원형 게이지 이미지")]
+    public Image circleProgressSlider;
+    
+    [Tooltip("현재 남은 재고 수량을 표시할 TextMeshPro - Text UI (ex: 10 / 30)")]
+    public TMP_Text stockText;
 
     private void Start()
     {
+        // 게임 시작 시 현재 재고 수량에 맞춰 3D 모델들과 UI 세팅 동기화
         UpdateVisuals();
+        UpdateUI();
     }
 
     public void Interact()
@@ -28,41 +42,41 @@ public class ChickenDisplay : MonoBehaviour, IInteractable
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
         if (player == null) return;
 
-        // 🔥 [상황 1] 플레이어가 물건을 들고 있을 때 -> 진열대에 치킨 추가
+        // 🔥 [상황 1] 플레이어가 물건을 들고 있을 때 -> 튀김기에서 가져온 완성된 판을 통째로 붓기
         if (player.IsHoldingItem)
         {
-            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 변경합니다.
             FoodData heldData = player.CurrentHeldData;
 
-            // 💡 데이터 규칙에 맞춰 'foodName' 필드로 필터링합니다.
-            // 튀김기에서 방금 건져낸 "완성된치킨" 데이터만 받습니다.
+            // 데이터 룰에 맞춰 'foodName' 필드로 필터링합니다.
             if (heldData.foodName == "완성된치킨")
             {
-                if (currentStock < maxStorage)
+                // 한 판(예: 10개 수량)을 부었을 때 최대치를 넘지 않는지 안전 검사
+                if (currentStock + 10 <= maxStorage)
                 {
-                    currentStock++;
-                    player.ClearHand(); // 플레이어 손에 든 치킨 비우기
+                    currentStock += 10; // 붕어빵 규칙 반영: 한 번에 10개 일괄 충전!
+                    player.ClearHand(); // 플레이어가 들고 있던 빈 바스켓/그릇 비우기
                     
                     UpdateVisuals();
-                    Debug.Log($"치킨진열대: 튀겨진 치킨을 진열했습니다. (현재 재고: {currentStock} / {maxStorage}개)");
+                    UpdateUI();
+                    Debug.Log($"치킨진열대: 튀김 한 판을 통째로 쏟아부었습니다! (현재 총 재고: {currentStock} / {maxStorage}개)");
                 }
                 else
                 {
-                    Debug.LogWarning("치킨진열대: 진열대가 가득 차서 더 이상 채울 수 없습니다!");
+                    Debug.LogWarning("치킨진열대: 가득 차서 더 이상 치킨 한 판을 부을 공간이 없습니다!");
                 }
             }
             else if (heldData.foodName == "탄치킨")
             {
-                Debug.LogWarning("치킨진열대: 탄 치킨은 진열할 수 없습니다. 쓰레기통에 버리세요!");
+                Debug.LogWarning("치킨진열대: 탄 요리는 진열할 수 없습니다. 쓰레기통에 버리세요!");
             }
             else
             {
-                Debug.LogWarning("치킨진열대: 완성된 치킨만 진열할 수 있습니다.");
+                Debug.LogWarning("치킨진열대: 완성된 치킨 판만 여기에 진열할 수 있습니다.");
             }
             return;
         }
 
-        // 🔥 [상황 2] 플레이어가 빈손일 때 -> 손님 지급용 낱개 치킨컵 꺼내기
+        // 🔥 [상황 2] 플레이어가 빈손일 때 -> 주문한 손님에게 주기 위해 '낱개로 1개씩' 치킨컵에 소분하기
         if (!player.IsHoldingItem)
         {
             if (currentStock > 0)
@@ -73,29 +87,62 @@ public class ChickenDisplay : MonoBehaviour, IInteractable
                     return;
                 }
 
-                currentStock--; // 재고 1개 차감
+                currentStock--; // 재고에서 낱개 1개 차감
                 
-                // 💡 플레이어 빈손에 테이크아웃 컵 FoodData 에셋을 쥐여줍니다.
+                // 플레이어 빈손에 단품 치킨컵 FoodData를 쥐여줍니다.
                 player.HoldNewData(chickenCupData); 
                 
                 UpdateVisuals();
-                Debug.Log($"치킨진열대: 판매용 치킨컵을 1개 꺼냈습니다. (남은 재고: {currentStock}개)");
+                UpdateUI();
+                Debug.Log($"치킨진열대: 판매용 치킨컵을 1개 꺼냈습니다. (남은 총 재고: {currentStock}개)");
             }
             else
             {
-                Debug.Log("치킨진열대: 재고가 없습니다! 튀김기에서 치킨을 더 튀겨오세요.");
+                Debug.Log("치킨진열대: 재고가 없습니다! 튀김기에서 치킨을 한 판 튀겨 오세요.");
             }
         }
     }
 
+    // ⭐ 재고 수량 인덱스에 맞춰 자식 치킨 오브젝트들을 순차적으로 켜고 끄는 연출 함수
     private void UpdateVisuals()
     {
         for (int i = 0; i < chickenVisuals.Count; i++)
         {
             if (chickenVisuals[i] != null)
             {
+                // i가 현재 재고(currentStock)보다 작을 때만 true가 되어 활성화됨
+                // ex) 튀김 한 판을 부으면 0번부터 9번 치킨 조각 메쉬가 우르르 탁 켜집니다.
+                // 1컵씩 손님에게 팔리면 역순으로 끝에 쌓여있던 메쉬부터 차례대로 꺼집니다.
                 chickenVisuals[i].SetActive(i < currentStock);
             }
+        }
+    }
+
+    // ⭐ 진열대 UI 수치와 패널 온/오프 상태를 동기화해주는 메서드
+    private void UpdateUI()
+    {
+        // 재고가 완전히 0개라면 UI 패널 자체를 비활성화해서 숨김
+        if (displayUIPanel != null)
+        {
+            displayUIPanel.SetActive(currentStock > 0);
+        }
+
+        if (maxStorage <= 0) return;
+
+        // 현재 남은 재고 비율 계산 (0.0 ~ 1.0)
+        float progressNormalized = (float)currentStock / maxStorage;
+        progressNormalized = Mathf.Clamp01(progressNormalized);
+
+        // 원형 이미지 fillAmount 실시간 동기화
+        if (circleProgressSlider != null)
+        {
+            circleProgressSlider.fillAmount = progressNormalized;
+        }
+
+        // 텍스트에 직관적으로 수량 표시 (예: "20 / 30")
+        if (stockText != null)
+        {
+            stockText.text = $"{currentStock}/{maxStorage}";
         }
     }
 }

@@ -22551,7 +22551,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blender
   machineID: Blender
   baseBlendTime: 5
-  baseHoldTime: 5
   cookedJuiceData: {fileID: 11400000, guid: b7938c0c4322c3f4cbdb21addf756d23, type: 2}
   fruitPlaceTransform: {fileID: 375872985248182379}
   blenderUIPanel: {fileID: 4714911083751200329}
@@ -22559,7 +22558,6 @@ MonoBehaviour:
   statusText: {fileID: 3531502017783955501}
   blendingFX: {fileID: 218255131809431579}
   blendColor: {r: 0, g: 1, b: 0, a: 1}
-  pourColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &1274573470478462552
 GameObject:
   m_ObjectHideFlags: 0
@@ -63055,6 +63053,7 @@ GameObject:
   - component: {fileID: 7604585746588741601}
   - component: {fileID: 2382800504943844906}
   - component: {fileID: 7870382688482986426}
+  - component: {fileID: 8545485928698948172}
   m_Layer: 0
   m_Name: Fryer
   m_TagString: Untagged
@@ -63156,6 +63155,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.009572938, y: 0.009999929, z: 0.009999351}
   m_Center: {x: 9.313226e-10, y: -0.000000036787238, z: 0.000000010011718}
+--- !u!114 &8545485928698948172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4036483838376416121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa919c0a599d0d644bddc25a4ba92706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeepFryer
+  machineID: DeepFryer
+  baseCookTime: 6
+  baseBurnTime: 7
+  cookedChickenData: {fileID: 11400000, guid: 05d0763b09e72354490bdd159c431b49, type: 2}
+  burntChickenData: {fileID: 0}
+  cookedPotatoData: {fileID: 11400000, guid: 507462ff0d3ff07489b1a31bb24ef619, type: 2}
+  burntPotatoData: {fileID: 0}
+  cookedChickenVisual: {fileID: 0}
+  cookedPotatoVisual: {fileID: 0}
+  burntVisualObject: {fileID: 0}
+  ingredientPoint: {fileID: 0}
+  fryerUIPanel: {fileID: 7425594458431343377}
+  circleProgressSlider: {fileID: 8743070982502927467}
+  statusText: {fileID: 3077987157759801000}
+  cookingFX: {fileID: 0}
+  normalCookColor: {r: 0, g: 1, b: 0, a: 1}
+  alertMaxColor: {r: 1, g: 0, b: 0, a: 1}
+  blinkSpeed: 8
+  currentIngredientName: 
 --- !u!1 &4063050650308282256
 GameObject:
   m_ObjectHideFlags: 0
@@ -63304,6 +63334,7 @@ GameObject:
   - component: {fileID: 2196740629806188452}
   - component: {fileID: 2514660254174241528}
   - component: {fileID: 8162707557578281965}
+  - component: {fileID: 4222324077790904310}
   m_Layer: 8
   m_Name: FrenchFriesDisplay
   m_TagString: Untagged
@@ -63356,6 +63387,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0.9999999, z: 0.99999994}
   m_Center: {x: 0, y: 0.00000023841856, z: 0}
+--- !u!114 &4222324077790904310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4065525489836962467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877696d697a098f42bda2dcc76f061d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PotatoDisplay
+  maxStorage: 30
+  potatoCupData: {fileID: 11400000, guid: 054867f66d3063b488da555458edd0fe, type: 2}
+  currentStock: 0
+  potatoVisuals: []
+  displayUIPanel: {fileID: 4091546872283940035}
+  circleProgressSlider: {fileID: 5782881872122968283}
+  stockText: {fileID: 2610335564864933186}
 --- !u!1 &4091546872283940035
 GameObject:
   m_ObjectHideFlags: 0
@@ -64386,8 +64436,8 @@ MonoBehaviour:
   machineID: ChoppingBoard
   baseChopTime: 3
   choppedVegetableData: {fileID: 11400000, guid: 5e9123d67ec596748a53ea9db14f3aa5, type: 2}
-  choppedChickenData: {fileID: 0}
-  choppedPotatoData: {fileID: 0}
+  choppedChickenData: {fileID: 11400000, guid: b8b440d10a0d25d478669adcff2b2883, type: 2}
+  choppedPotatoData: {fileID: 11400000, guid: ea1f320955b5b024d8c290ec26cc439c, type: 2}
   ingredientPlaceTransform: {fileID: 5717701738653028180}
   chopUIPanel: {fileID: 8280785682100016895}
   circleProgressSlider: {fileID: 5395563817906314318}
@@ -171666,6 +171716,7 @@ GameObject:
   - component: {fileID: 4688211137303444585}
   - component: {fileID: 5253472594779975579}
   - component: {fileID: 1609354996604356160}
+  - component: {fileID: 4519834308192202940}
   m_Layer: 8
   m_Name: ChickenDisplay
   m_TagString: Untagged
@@ -171718,6 +171769,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0.9999999, z: 0.99999994}
   m_Center: {x: 0, y: 0.00000023841856, z: 0}
+--- !u!114 &4519834308192202940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9030644725285375709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54ec6d8b941272b47a3bfa13cbdd69b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChickenDisplay
+  maxStorage: 30
+  chickenCupData: {fileID: 11400000, guid: 5f96a1a2cf32cd6408479f9e220c2d2c, type: 2}
+  currentStock: 0
+  chickenVisuals: []
+  displayUIPanel: {fileID: 4195596789577808257}
+  circleProgressSlider: {fileID: 2369177922018261822}
+  stockText: {fileID: 2741595175865489739}
 --- !u!1 &9044431135892153510
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FoodData
   foodName: 
   price: 30
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 7e50378d86a0f9942a7d6b99e9a67526, type: 3}
   prefab: {fileID: 5125284065416935699, guid: 271f4c0fba62e8d49b3d9390316176bd, type: 3}
   spawnScale: {x: 1, y: 1, z: 1}
   spawnRotation: {x: 0, y: 0, z: 0}

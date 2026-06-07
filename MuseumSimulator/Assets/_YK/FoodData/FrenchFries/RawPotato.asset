@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47a8f9643f1461d42b5f2a3d042dfc40, type: 3}
   m_Name: RawPotato
   m_EditorClassIdentifier: Assembly-CSharp::FoodData
-  foodName: 
+  foodName: RawPotato
   price: 0
   icon: {fileID: 0}
   prefab: {fileID: 3034581082768655250, guid: 2f5e5fd62a50fce469e5f4fe864fe757, type: 3}

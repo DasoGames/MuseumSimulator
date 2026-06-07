@@ -1,52 +1,71 @@
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.UI; // 💡 UI 제어용
+using TMPro;        // 💡 텍스트 제어용
 
 public class DeepFryer : MonoBehaviour, IInteractable
 {
-    [Header("튀김기 기계 설정")]
+    [Header("튀김기 기계 고유 설정")]
+    [Tooltip("UpgradeManager에 등록한 고유 식별 이름")]
     public string machineID = "DeepFryer";
-    public int maxSlots = 3;            // 튀김 바스켓(슬롯) 개수 (ex: 3구 짜리 튀김기)
-    public float baseCookTime = 6f;     // 튀겨지는 기본 시간 (초)
-    public float baseBurnTime = 7f;     // 완수 후 방치 시 타버리는(폐기) 시간 (초)
+    public float baseCookTime = 6f;      // 튀겨지는 기본 시간 (초)
+    public float baseBurnTime = 7f;      // 완수 후 방치 시 타버리는(폐기) 시간 (초)
 
     [Header("치킨 결과물 데이터")]
-    // 💡 기존 HoldableObject 구조체 대신 통합 스크립터블 오브젝트인 FoodData를 참조합니다.
-    public FoodData cookedChickenData; // 에셋 이름: "완성된치킨"
-    public FoodData burntChickenData;  // 에셋 이름: "탄치킨"
+    public FoodData cookedChickenData;   // 에셋 이름: "완성된치킨"
+    public FoodData burntChickenData;    // 에셋 이름: "탄치킨"
 
     [Header("감자튀김 결과물 데이터")]
-    public FoodData cookedPotatoData;  // 에셋 이름: "완성된감자튀김"
-    public FoodData burntPotatoData;   // 에셋 이름: "탄감자튀김"
+    public FoodData cookedPotatoData;    // 에셋 이름: "완성된감자튀김"
+    public FoodData burntPotatoData;     // 에셋 이름: "탄감자튀김"
 
-    // 💡 튀김기 바스켓 하나의 상태를 관리하기 위한 내부 구조체
-    [System.Serializable]
-    public struct FryerSlot
+    [Header("⭐ 요리 결과 비주얼 오브젝트 설정")]
+    [Tooltip("튀김기 자식으로 넣어둔 '완성된 치킨 3D 모델'을 연결하세요.")]
+    public GameObject cookedChickenVisual;
+    [Tooltip("튀김기 자식으로 넣어둔 '완성된 감자튀김 3D 모델'을 연결하세요.")]
+    public GameObject cookedPotatoVisual;
+    [Tooltip("튀김기 자식으로 넣어둔 '새까맣게 탄 튀김 3D 모델'을 연결하세요.")]
+    public GameObject burntVisualObject;
+
+    [Header("⭐ 투입 재료 배치 포인트 설정")]
+    [Tooltip("생재료 튀김 바스켓이 잠시 소환될 위치(Transform)")]
+    public Transform ingredientPoint;
+
+    [Header("⭐ 조리 및 경고 UI 설정")]
+    [Tooltip("튀김기 UI 전체를 감싸는 부모 오브젝트 (평소에는 꺼두기용)")]
+    public GameObject fryerUIPanel;
+    [Tooltip("원형 프로그레스 이미지 (Filled - Radial 360 설정 필수)")]
+    public Image circleProgressSlider;
+    [Tooltip("진행도 또는 경고를 띄울 TextMeshPro - Text")]
+    public TMP_Text statusText;
+
+    [Header("⭐ 연출 오브젝트 세팅 (FX)")]
+    [Tooltip("🔥 튀겨지는 동안 지글지글 기름이 튀거나 연기가 모락모락 나는 조리 중 연출용 FX")]
+    public GameObject cookingFX;
+
+    [Header("⭐ UI 연출 색상 세팅")]
+    public Color normalCookColor = Color.green; 
+    public Color alertMaxColor = Color.red;     
+    [Tooltip("방치 되었을 때 초당 깜빡거리는 속도")]
+    public float blinkSpeed = 8f;
+
+    // 단일 플로우 제어 내부 변수들
+    private bool isReadyToCook = false; 
+    private bool isCooking = false;     
+    private bool isDone = false;        
+
+    private float timer = 0f;
+    private float targetCookTime = 0f;  
+    
+    // 💡 기계가 현재 무슨 재료를 튀기고 있는지 기억할 핵심 필드
+    [SerializeField] private string currentIngredientName = "";
+    private GameObject spawnedIngredientVisual = null;
+
+    void Start()
     {
-        public bool isOccupied;         // 이 바스켓에 무언가 들어있는가?
-        public string inputIngredientName; // 처음에 투입된 재료의 이름 ("손질된닭" 또는 "손질된감자")
-        
-        public bool isCooking;          // 현재 기름에 튀겨지는 중인가?
-        public bool isDone;             // 완료되었는가?
-        
-        public float timer;             // 바스켓 개별 타이머
-        public float targetCookTime;    // 업그레이드가 반영된 최종 조리 시간
-        public GameObject visualRef;    // 바스켓 안에 잠시 소환될 3D 프리팹 인스턴스
-    }
-
-    [Header("현재 바스켓 상태들 (Debug)")]
-    [SerializeField] private List<FryerSlot> slots = new List<FryerSlot>();
-
-    [Header("바스켓별 3D 배치 위치")]
-    public List<Transform> slotTransforms = new List<Transform>(); // 바스켓들의 위치 (maxSlots 개수만큼 필요)
-
-    private void Awake()
-    {
-        // 슬롯 리스트 초기화
-        slots.Clear();
-        for (int i = 0; i < maxSlots; i++)
-        {
-            slots.Add(new FryerSlot { isOccupied = false });
-        }
+        // 첫 시작 시 모든 비주얼들과 UI, FX를 정돈하여 소등합니다.
+        UpdateVisuals(false, false, false);
+        if (fryerUIPanel != null) fryerUIPanel.SetActive(false);
+        if (cookingFX != null) cookingFX.SetActive(false);
     }
 
     public void Interact()
@@ -54,143 +73,212 @@ public class DeepFryer : MonoBehaviour, IInteractable
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
         if (player == null) return;
 
-        // 💡 [상황 1] 플레이어가 빈손일 때 -> 수거 우선 체크 (다 튀겨진 음식을 하나씩 꺼냄)
-        if (!player.IsHoldingItem)
+        // 💡 [상황 1] 요리가 완성되었거나 타버린 상태 -> 수거 프로세스
+        if (isDone)
         {
-            for (int i = 0; i < slots.Count; i++)
+            if (player.IsHoldingItem)
             {
-                if (slots[i].isOccupied && slots[i].isDone)
-                {
-                    TakeFoodFromBasket(i, player);
-                    return;
-                }
+                Debug.LogWarning("튀김기: 완성된 요리를 꺼내려면 손을 비워야 합니다!");
+                return;
             }
-            Debug.Log("튀김기: 현재 건져올릴 수 있는 완성된 튀김 요리가 없습니다.");
+
+            FoodData resultData = null;
+
+            // 1. 💡 투입되었던 원재료 이름에 맞춰 지급할 결과물(치킨 vs 감자)과 탄 분기를 철저히 가릅니다.
+            if (currentIngredientName == "손질된닭")
+            {
+                resultData = (timer >= baseBurnTime) ? burntChickenData : cookedChickenData;
+            }
+            else if (currentIngredientName == "손질된감자")
+            {
+                resultData = (timer >= baseBurnTime) ? burntPotatoData : cookedPotatoData;
+            }
+
+            // 플레이어 손에 최종 지급
+            if (resultData != null)
+            {
+                player.HoldNewData(resultData);
+                Debug.Log($"튀김기: 갓 튀겨진 [{resultData.foodName}]을(를) 바스켓에서 건져 올렸습니다!");
+            }
+
+            ResetFryer();
             return;
         }
 
-        // 💡 [상황 2] 플레이어가 손에 재료를 들고 있을 때 -> 튀김기에 투입
-        if (player.IsHoldingItem)
+        // 💡 [상황 2] 재료가 들어가서 조리 대기 중일 때 -> 빈손으로 누르면 즉시 가동!
+        if (isReadyToCook && !isCooking)
         {
-            // 💡 구조체 형식을 지우고 순수 FoodData 참조로 가져옵니다.
+            if (player.IsHoldingItem)
+            {
+                Debug.LogWarning("튀김기: 조리를 시작하려면 손을 비우고 상호작용하세요!");
+                return;
+            }
+
+            StartCooking();
+            return;
+        }
+
+        // 💡 [상황 3] 현재 완전히 비어있는 상태 -> 손에 든 생재료 투입 처리
+        if (!isReadyToCook && !isCooking && !isDone)
+        {
+            if (!player.IsHoldingItem)
+            {
+                Debug.Log("튀김기: 현재 비어있습니다. 손질된닭 또는 손질된감자를 가져와 투입하세요.");
+                return;
+            }
+
             FoodData heldData = player.CurrentHeldData;
 
-            // 💡 데이터 규칙에 맞게 'foodName' 필드로 필터링 및 검사를 수행합니다.
+            // 도마에서 썰어온 두 가지 손질 재료 이름 검사
             if (heldData.foodName == "손질된닭" || heldData.foodName == "손질된감자")
             {
-                // 비어있는 바스켓이 있는지 확인
-                int emptyBasketIndex = slots.FindIndex(x => !x.isOccupied);
+                isReadyToCook = true;
+                currentIngredientName = heldData.foodName; // 💡 기계에 어떤 재료가 담겼는지 저장!
 
-                if (emptyBasketIndex != -1)
+                // ⭐ [비주얼 연동] 지정된 포인트 위치에 개별 스케일/회전값을 반영하여 소환합니다.
+                if (ingredientPoint != null && heldData.prefab != null)
                 {
-                    PutFoodInBasket(emptyBasketIndex, heldData, player);
+                    Quaternion finalRotation = ingredientPoint.rotation * Quaternion.Euler(heldData.spawnRotation);
+                    spawnedIngredientVisual = Instantiate(heldData.prefab, ingredientPoint.position, finalRotation, this.transform);
+                    spawnedIngredientVisual.transform.localScale = heldData.spawnScale;
                 }
-                else
-                {
-                    Debug.LogWarning("튀김기: 모든 튀김 바스켓이 사용 중입니다! 다 익은 요리를 먼저 건지세요.");
-                }
+
+                // 플레이어 손 비우기
+                player.ClearHand();
+                Debug.Log($"튀김기: [{currentIngredientName}] 투입 완료! 빈손으로 E키를 눌러 기름통에 담그세요.");
             }
             else
             {
-                Debug.LogWarning("튀김기: 이 기계에는 도마에서 손질된닭 또는 손질된감자만 넣을 수 있습니다.");
+                Debug.LogWarning("튀김기: 이 기계에는 도마에서 예쁘게 썰어온 '손질된닭'이나 '손질된감자'만 투입할 수 있습니다.");
             }
         }
     }
 
-    // 바스켓에 재료를 넣고 즉시 튀기기 시작하는 함수
-    private void PutFoodInBasket(int index, FoodData heldData, PlayerInteractor player)
+    private void StartCooking()
     {
-        FryerSlot slot = slots[index];
-        slot.isOccupied = true;
-        slot.isCooking = true;
-        slot.isDone = false;
-        slot.timer = 0f;
-        slot.inputIngredientName = heldData.foodName; // 닭인지 감자인지 기계가 기억하게 함
+        isReadyToCook = false;
+        isCooking = true;
+        timer = 0f;
 
-        // [업그레이드 연동] UpgradeManager를 찔러 속도 단축 비율 계산
         float speedModifier = UpgradeManager.Instance != null ? UpgradeManager.Instance.GetSpeedModifier(machineID) : 1f;
-        slot.targetCookTime = baseCookTime * speedModifier;
+        targetCookTime = baseCookTime * speedModifier;
 
-        // 💡 손을 비우기 전에 프리팹 정보를 사용하여 바스켓 위치에 3D 비주얼을 복사 소환합니다.
-        if (heldData.prefab != null && slotTransforms.Count > index && slotTransforms[index] != null)
-        {
-            slot.visualRef = Instantiate(heldData.prefab, slotTransforms[index]);
-            slot.visualRef.transform.localPosition = Vector3.zero;
-            slot.visualRef.transform.localRotation = Quaternion.identity;
-        }
-
-        // 플레이어 손 비우기
-        player.ClearHand();
-
-        slots[index] = slot;
-        Debug.Log($"튀김기: {index + 1}번 바스켓에 [{slot.inputIngredientName}]을 넣었습니다. 튀기기 시작! (시간: {slot.targetCookTime:F1}초)");
-    }
-
-    // 튀김이 완료된 요리를 건져내어 플레이어에게 지급하는 함수
-    private void TakeFoodFromBasket(int index, PlayerInteractor player)
-    {
-        FryerSlot slot = slots[index];
-        FoodData resultData; // 💡 FoodData 타입으로 변경
-
-        // 💡 투입되었던 재료 이름("손질된닭" vs "손질된감자")에 따라 결과물 분기 처리
-        if (slot.inputIngredientName == "손질된닭")
-        {
-            // 탄 타이머 시간 체크
-            resultData = (slot.timer >= baseBurnTime) ? burntChickenData : cookedChickenData;
-        }
-        else // "손질된감자"인 경우
-        {
-            resultData = (slot.timer >= baseBurnTime) ? burntPotatoData : cookedPotatoData;
-        }
-
-        // 💡 비주얼 오브젝트 파괴 및 해당 바스켓 완전 초기화 전에 플레이어에게 안전하게 데이터 지급
-        if (resultData != null)
-        {
-            player.HoldNewData(resultData);
-            Debug.Log($"튀김기: {index + 1}번 바스켓에서 요리를 건졌습니다! 결과물: [{resultData.foodName}]");
-        }
-
-        // 비주얼 오브젝트 파괴
-        if (slot.visualRef != null) Destroy(slot.visualRef);
+        // UI 패널 온 및 튀김용 지글지글 FX 파티클 전격 활성화
+        if (fryerUIPanel != null) fryerUIPanel.SetActive(true);
+        if (circleProgressSlider != null) circleProgressSlider.color = normalCookColor;
         
-        slot.isOccupied = false;
-        slot.inputIngredientName = "";
-        slot.isCooking = false;
-        slot.isDone = false;
-        slot.timer = 0f;
-        slot.visualRef = null;
+        if (cookingFX != null) 
+        {
+            cookingFX.SetActive(true);
+        }
 
-        slots[index] = slot;
+        Debug.Log($"튀김기: 기름 속에 바스켓을 내렸습니다! 조리 시작 (목표 시간: {targetCookTime:F1}초)");
     }
 
     void Update()
     {
-        // 모든 튀김 바스켓을 실시간으로 돌며 각각 독립적인 타이머 작동
-        for (int i = 0; i < slots.Count; i++)
+        // 1. 🔥 정직하게 기름 온도 유지하며 지글지글 바삭하게 익어가는 연산
+        if (isCooking)
         {
-            if (!slots[i].isOccupied) continue;
+            timer += Time.deltaTime;
+            float progress = timer / targetCookTime;
+            
+            UpdateProgressUI(progress, $"{Mathf.RoundToInt(Mathf.Clamp01(progress) * 100f)}%");
 
-            FryerSlot slot = slots[i];
-
-            // A. 기름에 지글지글 튀겨지는 중인 상태
-            if (slot.isCooking)
+            if (timer >= targetCookTime)
             {
-                slot.timer += Time.deltaTime;
-                if (slot.timer >= slot.targetCookTime)
+                isCooking = false;
+                isDone = true;
+                timer = 0f; 
+
+                // 조리가 완료되었으니 생재료 비주얼 정리 및 끓는 기름 이펙트 OFF
+                if (spawnedIngredientVisual != null) Destroy(spawnedIngredientVisual);
+                if (cookingFX != null) cookingFX.SetActive(false);
+
+                // 💡 [비주얼 핵심] 튀겨진 재료 이름에 맞춰 치킨 3D 메쉬 혹은 감자튀김 3D 메쉬를 선별하여 켭니다!
+                bool isChicken = (currentIngredientName == "손질된닭");
+                UpdateVisuals(isChicken, !isChicken, false);
+
+                Debug.Log($"튀김기: {currentIngredientName} 조리 완벽 완료! 빨리 안 건지면 시꺼멓게 탑니다.");
+            }
+        }
+
+        // 2. 🚨 요리는 끝났으나 수거하지 않아 기름 속에서 기름을 먹고 타버리는 상태 (ALERT 연출)
+        if (isDone)
+        {
+            timer += Time.deltaTime;
+            float burnProgress = timer / baseBurnTime;
+
+            if (timer < baseBurnTime)
+            {
+                // 실시간 초록색 ➡️ 새빨간색 그라데이션 변환
+                Color currentAlertColor = Color.Lerp(normalCookColor, alertMaxColor, burnProgress);
+                
+                // 알파값을 깜빡이게 만듬 (사이렌 경고 효과)
+                float blinkAlpha = Mathf.Lerp(0.2f, 1.0f, Mathf.Abs(Mathf.Sin(Time.time * blinkSpeed)));
+                currentAlertColor.a = blinkAlpha;
+
+                if (circleProgressSlider != null)
                 {
-                    slot.isCooking = false;
-                    slot.isDone = true;
-                    slot.timer = 0f; // 이 타이머는 이제 완성 후 방치 시간(탄 타이머)으로 사용됩니다.
-                    Debug.Log($"튀김기: {i + 1}번 바스켓의 튀김 요리가 완료되었습니다! 타이머가 지나면 타버립니다.");
+                    circleProgressSlider.color = currentAlertColor;
+                    circleProgressSlider.fillAmount = 1f; 
+                }
+
+                if (statusText != null)
+                {
+                    statusText.text = "<color=red>WARN</color>";
+                    statusText.alpha = blinkAlpha;
                 }
             }
-            // B. 요리가 완성된 상태로 튀김기 안에 방치된 상태
-            else if (slot.isDone)
+            else
             {
-                slot.timer += Time.deltaTime;
+                // 완전히 버닝 타임을 초과하여 새까맣게 숯이 되어버린 순간
+                if ((cookedChickenVisual != null && cookedChickenVisual.activeSelf) || (cookedPotatoVisual != null && cookedPotatoVisual.activeSelf))
+                {
+                    // 일반 음식 메쉬 싹 다 끄고 탄 메쉬 모델 가동
+                    UpdateVisuals(false, false, true);
+                    
+                    if (circleProgressSlider != null) circleProgressSlider.fillAmount = 0f;
+                    if (statusText != null) { statusText.text = "BURNED"; statusText.alpha = 1f; }
+                    Debug.Log("<color=red>튀김기: 기름연기가 피어오르며 타이쿤 요리가 새까맣게 타버렸습니다!</color>");
+                }
             }
-
-            slots[i] = slot;
         }
+    }
+
+    private void UpdateProgressUI(float progressNormalized, string textMessage)
+    {
+        progressNormalized = Mathf.Clamp01(progressNormalized);
+        if (circleProgressSlider != null) circleProgressSlider.fillAmount = progressNormalized;
+        if (statusText != null)
+        {
+            statusText.text = textMessage;
+            statusText.alpha = 1f;
+        }
+    }
+
+    // 💡 재료 분기 및 타버린 임계점에 완벽 동기화된 3D 메쉬 연출 컨트롤러
+    private void UpdateVisuals(bool showChicken, bool showPotato, bool showBurnt)
+    {
+        if (cookedChickenVisual != null) cookedChickenVisual.SetActive(showChicken);
+        if (cookedPotatoVisual != null) cookedPotatoVisual.SetActive(showPotato);
+        if (burntVisualObject != null) burntVisualObject.SetActive(showBurnt);
+    }
+
+    private void ResetFryer()
+    {
+        isReadyToCook = false;
+        isCooking = false;
+        isDone = false;
+        timer = 0f;
+        targetCookTime = 0f;
+        currentIngredientName = "";
+
+        if (spawnedIngredientVisual != null) Destroy(spawnedIngredientVisual);
+        if (fryerUIPanel != null) fryerUIPanel.SetActive(false);
+        if (cookingFX != null) cookingFX.SetActive(false);
+
+        UpdateVisuals(false, false, false);
+        Debug.Log("튀김기: 바스켓 청소 및 기름 정제 완료! 새로운 재료 투입 가능.");
     }
 }
