@@ -11,6 +11,9 @@ public class TrafficLight : MonoBehaviour
     public GameObject YellowLight;
     public GameObject RedLight;
 
+    public GameObject PedestrianRedLight;
+    public GameObject PedestrianGreenLight;
+
     [SerializeField] private StopScript Stopper;
 
     private void Start()
@@ -27,18 +30,24 @@ public class TrafficLight : MonoBehaviour
             GreenLight.SetActive(true);
             YellowLight.SetActive(false);
             RedLight.SetActive(false);
+            PedestrianRedLight.SetActive(true);
+            PedestrianGreenLight.SetActive(false);
 
             yield return new WaitForSeconds(GreenTime);
             Stopper.CanGo(true);
             GreenLight.SetActive(false);
             YellowLight.SetActive(true);
             RedLight.SetActive(false);
+            PedestrianRedLight.SetActive(true);
+            PedestrianGreenLight.SetActive(false);
 
             yield return new WaitForSeconds(YellowTime);
             Stopper.CanGo(true);
             GreenLight.SetActive(false);
             YellowLight.SetActive(false);
             RedLight.SetActive(true);
+            PedestrianRedLight.SetActive(false);
+            PedestrianGreenLight.SetActive(true);
 
             yield return new WaitForSeconds(RedTime);
         }
