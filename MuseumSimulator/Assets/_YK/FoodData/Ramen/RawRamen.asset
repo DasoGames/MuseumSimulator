@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47a8f9643f1461d42b5f2a3d042dfc40, type: 3}
   m_Name: RawRamen
   m_EditorClassIdentifier: Assembly-CSharp::FoodData
-  foodName: 
-  price: 0
-  icon: {fileID: 0}
+  foodName: RawRamen
+  price: 30
+  icon: {fileID: 21300000, guid: a529ede9ec3c0ee4abad3276d71f1f19, type: 3}
   prefab: {fileID: 1660547995876230036, guid: a56aa34c484e2d949aa59df3fbab4351, type: 3}
   spawnScale: {x: 1, y: 1, z: 1}
   spawnRotation: {x: 0, y: 0, z: 0}
-  handScale: {x: 1, y: 1, z: 1}
+  handScale: {x: 50, y: 50, z: 50}
   handRotation: {x: 0, y: 0, z: 0}

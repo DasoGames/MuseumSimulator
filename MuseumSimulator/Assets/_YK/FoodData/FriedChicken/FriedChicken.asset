@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47a8f9643f1461d42b5f2a3d042dfc40, type: 3}
   m_Name: FriedChicken
   m_EditorClassIdentifier: Assembly-CSharp::FoodData
-  foodName: 
+  foodName: FriedChicken
   price: 0
   icon: {fileID: 0}
   prefab: {fileID: 7027099591085336054, guid: a435fced330729f44b41b8f24c9ca747, type: 3}

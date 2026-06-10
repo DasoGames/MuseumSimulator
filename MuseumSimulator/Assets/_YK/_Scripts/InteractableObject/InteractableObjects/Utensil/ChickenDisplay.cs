@@ -40,38 +40,51 @@ public class ChickenDisplay : MonoBehaviour, IInteractable
     public void Interact()
     {
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
-        if (player == null) return;
+        if (player == null)
+        {
+            Debug.LogError($"<color=red><b>🚨 [상호작용 실패]</b> 씬에서 PlayerInteractor를 찾을 수 없습니다!</color>");
+            return;
+        }
+
+        // =================================================================
+        // 🔍 [실시간 상태 모니터링 디버깅 블랙박스]
+        // =================================================================
+        string heldItemName = player.IsHoldingItem ? player.CurrentHeldData.foodName : "빈손";
+        Debug.Log($"<color=#FF00FF><b>🔍 [치킨 진열대 상호작용 검문]</b>\n" +
+                  $"▶ 클릭한 플레이어 손: [{heldItemName}]\n" +
+                  $"▶ 진열대 현재 재고: {currentStock} / {maxStorage}</color>");
 
         // 🔥 [상황 1] 플레이어가 물건을 들고 있을 때 -> 튀김기에서 가져온 완성된 판을 통째로 붓기
         if (player.IsHoldingItem)
         {
             FoodData heldData = player.CurrentHeldData;
 
-            // 데이터 룰에 맞춰 'foodName' 필드로 필터링합니다.
-            if (heldData.foodName == "완성된치킨")
+            // 💡 [데이터 규칙 일치화] 튀김기 완료 분기 이름인 영어 "CookedChicken" 규칙으로 완벽 동기화!
+            if (heldData.foodName == "CookedChicken")
             {
                 // 한 판(예: 10개 수량)을 부었을 때 최대치를 넘지 않는지 안전 검사
                 if (currentStock + 10 <= maxStorage)
                 {
-                    currentStock += 10; // 붕어빵 규칙 반영: 한 번에 10개 일괄 충전!
+                    currentStock += 10; // 규칙 반영: 한 번에 10개 일괄 충전!
                     player.ClearHand(); // 플레이어가 들고 있던 빈 바스켓/그릇 비우기
                     
                     UpdateVisuals();
                     UpdateUI();
-                    Debug.Log($"치킨진열대: 튀김 한 판을 통째로 쏟아부었습니다! (현재 총 재고: {currentStock} / {maxStorage}개)");
+                    Debug.Log($"<color=lime><b>📦 [진열 충전 성공]</b> 치킨 한 판(10개)을 통째로 쏟아부었습니다! (현재 총 재고: {currentStock} / {maxStorage}개)</color>");
                 }
                 else
                 {
-                    Debug.LogWarning("치킨진열대: 가득 차서 더 이상 치킨 한 판을 부을 공간이 없습니다!");
+                    Debug.LogWarning($"<color=orange><b>⚠️ [진열 거부]</b> 가득 차서 더 이상 치킨 한 판을 부을 공간이 없습니다! (공간 부족)</color>");
                 }
             }
-            else if (heldData.foodName == "탄치킨")
+            // 💡 [데이터 규칙 일치화] 탄 음식 이름도 영어 "BurntChicken" 규칙으로 완벽 동기화!
+            else if (heldData.foodName == "BurntChicken")
             {
-                Debug.LogWarning("치킨진열대: 탄 요리는 진열할 수 없습니다. 쓰레기통에 버리세요!");
+                Debug.LogWarning("<color=red><b>❌ [진열 불가]</b> 탄 치킨은 진열할 수 없습니다. 쓰레기통에 폐기하세요!</color>");
             }
             else
             {
-                Debug.LogWarning("치킨진열대: 완성된 치킨 판만 여기에 진열할 수 있습니다.");
+                Debug.LogWarning($"<color=orange><b>⚠️ [진열 거부]</b> [{heldData.foodName}]은 여기에 둘 수 없습니다. 완성된 치킨 판만 진열 가능합니다.</color>");
             }
             return;
         }
@@ -83,7 +96,7 @@ public class ChickenDisplay : MonoBehaviour, IInteractable
             {
                 if (chickenCupData == null)
                 {
-                    Debug.LogError("치킨진열대: 'chickenCupData' 에셋이 인스펙터에 연결되지 않았습니다!");
+                    Debug.LogError("<color=red><b>🚨 [오류]</b> 치킨진열대: 'chickenCupData' 에셋이 인스펙터에 연결되지 않았습니다!</color>");
                     return;
                 }
 
@@ -94,11 +107,11 @@ public class ChickenDisplay : MonoBehaviour, IInteractable
                 
                 UpdateVisuals();
                 UpdateUI();
-                Debug.Log($"치킨진열대: 판매용 치킨컵을 1개 꺼냈습니다. (남은 총 재고: {currentStock}개)");
+                Debug.Log($"<color=green><b>🍟 [판매 수거 성공]</b> 판매용 치킨컵을 1개 꺼냈습니다. (남은 총 재고: {currentStock}개)</color>");
             }
             else
             {
-                Debug.Log("치킨진열대: 재고가 없습니다! 튀김기에서 치킨을 한 판 튀겨 오세요.");
+                Debug.Log("<color=white>치킨진열대: 현재 재고가 완전히 동났습니다! 튀김기에서 치킨을 더 튀겨오세요.</color>");
             }
         }
     }
@@ -111,8 +124,6 @@ public class ChickenDisplay : MonoBehaviour, IInteractable
             if (chickenVisuals[i] != null)
             {
                 // i가 현재 재고(currentStock)보다 작을 때만 true가 되어 활성화됨
-                // ex) 튀김 한 판을 부으면 0번부터 9번 치킨 조각 메쉬가 우르르 탁 켜집니다.
-                // 1컵씩 손님에게 팔리면 역순으로 끝에 쌓여있던 메쉬부터 차례대로 꺼집니다.
                 chickenVisuals[i].SetActive(i < currentStock);
             }
         }
@@ -136,10 +147,11 @@ public class ChickenDisplay : MonoBehaviour, IInteractable
         // 원형 이미지 fillAmount 실시간 동기화
         if (circleProgressSlider != null)
         {
+            circleProgressSlider.color = Color.green; // 기본 UI 바 색상 고정
             circleProgressSlider.fillAmount = progressNormalized;
         }
 
-        // 텍스트에 직관적으로 수량 표시 (예: "20 / 30")
+        // 텍스트에 직관적으로 수량 표시 (예: "10 / 30")
         if (stockText != null)
         {
             stockText.text = $"{currentStock}/{maxStorage}";

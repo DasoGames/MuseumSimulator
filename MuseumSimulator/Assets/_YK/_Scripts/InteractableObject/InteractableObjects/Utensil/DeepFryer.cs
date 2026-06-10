@@ -85,11 +85,11 @@ public class DeepFryer : MonoBehaviour, IInteractable
             FoodData resultData = null;
 
             // 1. 💡 투입되었던 원재료 이름에 맞춰 지급할 결과물(치킨 vs 감자)과 탄 분기를 철저히 가릅니다.
-            if (currentIngredientName == "손질된닭")
+            if (currentIngredientName == "SlicedChicken")
             {
                 resultData = (timer >= baseBurnTime) ? burntChickenData : cookedChickenData;
             }
-            else if (currentIngredientName == "손질된감자")
+            else if (currentIngredientName == "SlicedPotato")
             {
                 resultData = (timer >= baseBurnTime) ? burntPotatoData : cookedPotatoData;
             }
@@ -130,7 +130,7 @@ public class DeepFryer : MonoBehaviour, IInteractable
             FoodData heldData = player.CurrentHeldData;
 
             // 도마에서 썰어온 두 가지 손질 재료 이름 검사
-            if (heldData.foodName == "손질된닭" || heldData.foodName == "손질된감자")
+            if (heldData.foodName == "SlicedPotato" || heldData.foodName == "SlicedChicken")
             {
                 isReadyToCook = true;
                 currentIngredientName = heldData.foodName; // 💡 기계에 어떤 재료가 담겼는지 저장!

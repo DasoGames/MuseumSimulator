@@ -15,7 +15,7 @@ MonoBehaviour:
   foodName: FriedPotato
   price: 0
   icon: {fileID: 0}
-  prefab: {fileID: 0}
+  prefab: {fileID: 8382220202939790701, guid: 2a8ef04036a5cd94fb0f2d4ecec29543, type: 3}
   spawnScale: {x: 1, y: 1, z: 1}
   spawnRotation: {x: 0, y: 0, z: 0}
   handScale: {x: 1, y: 1, z: 1}

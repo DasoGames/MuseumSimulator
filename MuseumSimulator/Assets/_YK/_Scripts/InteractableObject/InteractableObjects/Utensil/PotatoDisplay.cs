@@ -11,7 +11,7 @@ public class PotatoDisplay : MonoBehaviour, IInteractable
     
     [Header("결과물 데이터")]
     [Tooltip("진열대에서 빈손으로 꺼낼 때 손님에게 판매할 테이크아웃 감자튀김컵 에셋")]
-    public FoodData potatoCupData; // 에셋 이름: "감자튀김컵"
+    public FoodData potatoCupData; // 에셋 이름: "감자튀김컵" (또는 내부 ID 매핑 에셋)
 
     [Header("현재 재고 상태 (Debug)")]
     [SerializeField] private int currentStock = 0; // 현재 진열대에 쌓여있는 낱개 감자튀김 수량
@@ -40,38 +40,51 @@ public class PotatoDisplay : MonoBehaviour, IInteractable
     public void Interact()
     {
         PlayerInteractor player = FindFirstObjectByType<PlayerInteractor>();
-        if (player == null) return;
+        if (player == null)
+        {
+            Debug.LogError($"<color=red><b>🚨 [상호작용 실패]</b> 씬에서 PlayerInteractor를 찾을 수 없습니다!</color>");
+            return;
+        }
+
+        // =================================================================
+        // 🔍 [실시간 상태 모니터링 디버깅 블랙박스]
+        // =================================================================
+        string heldItemName = player.IsHoldingItem ? player.CurrentHeldData.foodName : "빈손";
+        Debug.Log($"<color=#00FFFF><b>🔍 [감자 진열대 상호작용 검문]</b>\n" +
+                  $"▶ 클릭한 플레이어 손: [{heldItemName}]\n" +
+                  $"▶ 진열대 현재 재고: {currentStock} / {maxStorage}</color>");
 
         // 🔥 [상황 1] 플레이어가 물건을 들고 있을 때 -> 튀김기에서 가져온 완성된 판을 통째로 붓기
         if (player.IsHoldingItem)
         {
             FoodData heldData = player.CurrentHeldData;
 
-            // 데이터 룰에 맞춰 'foodName' 필드로 필터링합니다.
-            if (heldData.foodName == "완성된감자튀김")
+            // 💡 [데이터 규칙 일치화] 튀김기 결과물 이름인 영어 "CookedPotato" 규칙으로 완벽 동기화!
+            if (heldData.foodName == "CookedPotato")
             {
                 // 한 판(10개 수량)을 부었을 때 최대치를 넘지 않는지 안전 검사
                 if (currentStock + 10 <= maxStorage)
                 {
-                    currentStock += 10; // 붕어빵/치킨 규칙 반영: 한 번에 10개 일괄 충전!
+                    currentStock += 10; // 붕어빵 규칙과 완벽 일치: 한 번에 10개 일괄 충전!
                     player.ClearHand(); // 플레이어가 들고 있던 빈 바스켓/그릇 비우기
                     
                     UpdateVisuals();
                     UpdateUI();
-                    Debug.Log($"감자진열대: 튀김 한 판을 통째로 쏟아부었습니다! (현재 총 재고: {currentStock} / {maxStorage}개)");
+                    Debug.Log($"<color=lime><b>📦 [진열 충전 성공]</b> 감자튀김 한 판(10개)을 통째로 쏟아부었습니다! (현재 총 재고: {currentStock} / {maxStorage}개)</color>");
                 }
                 else
                 {
-                    Debug.LogWarning("감자진열대: 가득 차서 더 이상 감자튀김 한 판을 부을 공간이 없습니다!");
+                    Debug.LogWarning($"<color=orange><b>⚠️ [진열 거부]</b> 가득 차서 더 이상 감자튀김 한 판을 부을 공간이 없습니다! (공간 부족)</color>");
                 }
             }
-            else if (heldData.foodName == "탄감자튀김")
+            // 💡 [데이터 규칙 일치화] 탄 음식 이름도 영어 "BurntPotato" 규칙으로 완벽 동기화!
+            else if (heldData.foodName == "BurntPotato")
             {
-                Debug.LogWarning("감자진열대: 탄 감자튀김은 진열할 수 없습니다. 쓰레기통에 버리세요!");
+                Debug.LogWarning("<color=red><b>❌ [진열 불가]</b> 탄 감자튀김은 진열할 수 없습니다. 쓰레기통에 폐기하세요!</color>");
             }
             else
             {
-                Debug.LogWarning("감자진열대: 완성된 감자튀김 판만 여기에 진열할 수 있습니다.");
+                Debug.LogWarning($"<color=orange><b>⚠️ [진열 거부]</b> [{heldData.foodName}]은 여기에 둘 수 없습니다. 완성된 감자튀김 판만 진열 가능합니다.</color>");
             }
             return;
         }
@@ -83,7 +96,7 @@ public class PotatoDisplay : MonoBehaviour, IInteractable
             {
                 if (potatoCupData == null)
                 {
-                    Debug.LogError("감자진열대: 'potatoCupData' 에셋이 인스펙터에 연결되지 않았습니다!");
+                    Debug.LogError("<color=red><b>🚨 [오류]</b> 감자진열대: 'potatoCupData' 에셋이 인스펙터에 연결되지 않았습니다!</color>");
                     return;
                 }
 
@@ -94,11 +107,11 @@ public class PotatoDisplay : MonoBehaviour, IInteractable
                 
                 UpdateVisuals();
                 UpdateUI();
-                Debug.Log($"감자진열대: 판매용 감자튀김컵을 1개 꺼냈습니다. (남은 총 재고: {currentStock}개)");
+                Debug.Log($"<color=green><b>🍟 [판매 수거 성공]</b> 판매용 감자튀김컵을 1개 꺼냈습니다. (남은 총 재고: {currentStock}개)</color>");
             }
             else
             {
-                Debug.Log("감자진열대: 재고가 없습니다! 튀김기에서 감자를 더 튀겨오세요.");
+                Debug.Log("<color=white>감자진열대: 현재 재고가 완전히 동났습니다! 튀김기에서 감자를 더 튀겨오세요.</color>");
             }
         }
     }
@@ -111,8 +124,6 @@ public class PotatoDisplay : MonoBehaviour, IInteractable
             if (potatoVisuals[i] != null)
             {
                 // i가 현재 재고(currentStock)보다 작을 때만 true가 되어 활성화됨
-                // ex) 튀김 한 판을 부으면 0번부터 9번 감자튀김 메쉬가 한 번에 탁 켜집니다.
-                // 1개씩 팔리면 끝에 쌓여있던 메쉬부터 순서대로 꺼집니다.
                 potatoVisuals[i].SetActive(i < currentStock);
             }
         }
@@ -136,6 +147,7 @@ public class PotatoDisplay : MonoBehaviour, IInteractable
         // 원형 이미지 fillAmount 실시간 동기화
         if (circleProgressSlider != null)
         {
+            circleProgressSlider.color = Color.green; // 기본 UI 바 색상 고정
             circleProgressSlider.fillAmount = progressNormalized;
         }
 

@@ -5,6 +5,7 @@
   <Project Path="KinoBloom.Runtime.csproj" />
   <Project Path="VARCO3DBridge.Editor.csproj" />
   <Project Path="CFXRDemo.csproj" />
+  <Project Path="VARCO3DPlugin.csproj" />
   <Project Path="CFXREditor.csproj" />
   <Project Path="CFXRRuntime.csproj" />
 </Solution>

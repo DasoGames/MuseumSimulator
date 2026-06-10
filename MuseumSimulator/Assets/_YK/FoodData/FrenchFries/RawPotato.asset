@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47a8f9643f1461d42b5f2a3d042dfc40, type: 3}
   m_Name: RawPotato
   m_EditorClassIdentifier: Assembly-CSharp::FoodData
-  foodName: RawPotato
-  price: 0
-  icon: {fileID: 0}
+  foodName: Potato
+  price: 30
+  icon: {fileID: 21300000, guid: d281c309d27ff924ebdd647dd184f8cd, type: 3}
   prefab: {fileID: 3034581082768655250, guid: 2f5e5fd62a50fce469e5f4fe864fe757, type: 3}
-  spawnScale: {x: 1, y: 1, z: 1}
+  spawnScale: {x: 200, y: 200, z: 200}
   spawnRotation: {x: 0, y: 0, z: 0}
-  handScale: {x: 1, y: 1, z: 1}
+  handScale: {x: 30, y: 30, z: 30}
   handRotation: {x: 0, y: 0, z: 0}

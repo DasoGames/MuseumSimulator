@@ -15,8 +15,8 @@ MonoBehaviour:
   foodName: SlicedPotato
   price: 0
   icon: {fileID: 0}
-  prefab: {fileID: 0}
-  spawnScale: {x: 1, y: 1, z: 1}
+  prefab: {fileID: 2318191785420889921, guid: 3a8d54cf24c4be343bc7bf7d294e4c37, type: 3}
+  spawnScale: {x: 0.5, y: 0.5, z: 0.5}
   spawnRotation: {x: 0, y: 0, z: 0}
-  handScale: {x: 1, y: 1, z: 1}
+  handScale: {x: 50, y: 50, z: 50}
   handRotation: {x: 0, y: 0, z: 0}

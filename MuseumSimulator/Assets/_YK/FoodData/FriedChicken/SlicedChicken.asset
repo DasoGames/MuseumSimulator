@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47a8f9643f1461d42b5f2a3d042dfc40, type: 3}
   m_Name: SlicedChicken
   m_EditorClassIdentifier: Assembly-CSharp::FoodData
-  foodName: 
+  foodName: SlicedChicken
   price: 0
   icon: {fileID: 0}
   prefab: {fileID: 4597139171658270, guid: dc80bb420b4bc984bb5c2fa44ab3d98b, type: 3}
-  spawnScale: {x: 1, y: 1, z: 1}
+  spawnScale: {x: 0.5, y: 0.5, z: 0.5}
   spawnRotation: {x: 0, y: 0, z: 0}
-  handScale: {x: 1, y: 1, z: 1}
+  handScale: {x: 60, y: 60, z: 60}
   handRotation: {x: 0, y: 0, z: 0}
